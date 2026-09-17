@@ -1,0 +1,18 @@
+[2026-09-17 01:26:10] [NEXUS] Loaded champion genome from genomes/champion.pkl (Fitness: 0.9980025898631232)
+[2026-09-17 01:26:10] [ANOMALY DETECTED] Threat Score: 0.9571 | Attacker IP: 198.51.100.77 | Pkt: Ether / IP / TCP 198.51.100.77:55555 > 192.168.1.50:http S
+[2026-09-17 01:26:10] [DRY-RUN] Demonic RST armed for 198.51.100.77:55555 (417 bytes payload)
+[2026-09-17 01:26:10] [DRY-RUN] Would block IP via firewall: 198.51.100.77
+[2026-09-17 01:35:31] [NEXUS] Loaded champion genome from genomes/champion.pkl (Fitness: 0.9980025898631232)
+[2026-09-17 01:35:31] [ANOMALY DETECTED] Threat Score: 0.9571 | Attacker IP: 198.51.100.77 | Pkt: Ether / IP / TCP 198.51.100.77:55555 > 192.168.1.50:http S
+[2026-09-17 01:35:31] [DRY-RUN] Demonic RST armed for 198.51.100.77:55555 (seq=0, ack=1001, 417 bytes payload, count=2)
+[2026-09-17 01:35:31] [DRY-RUN] Would block IP via firewall: 198.51.100.77
+[2026-09-17 02:00:56] [NEXUS] Loaded champion genome from genomes/champion.pkl (Fitness: 0.9980025898631232)
+[2026-09-17 02:00:56] [ANOMALY DETECTED] Threat Score: 0.9571 | Attacker IP: 198.51.100.77 | Pkt: Ether / IP / TCP 198.51.100.77:55555 > 192.168.1.50:http S
+[2026-09-17 02:00:56] [DRY-RUN] Would block IP via firewall: 198.51.100.77
+[2026-09-17 02:01:04] [NEXUS] Loaded champion genome from genomes/champion.pkl (Fitness: 0.9980025898631232)
+[2026-09-17 02:01:04] [ANOMALY DETECTED] Threat Score: 0.9571 | Attacker IP: 198.51.100.77 | Pkt: Ether / IP / TCP 198.51.100.77:55555 > 192.168.1.50:http S
+[2026-09-17 02:01:04] [DRY-RUN] Would block IP via firewall: 198.51.100.77
+[2026-09-17 02:01:04] [DRY-RUN] Demonic RST armed for 198.51.100.77:55555 (seq=0, ack=1001, 417 bytes payload, count=2)
+[2026-09-17 02:04:46] [NEXUS] Loaded champion genome from genomes/champion.pkl (Fitness: 0.9980025898631232)
+[2026-09-17 02:04:46] [ANOMALY DETECTED] Threat Score: 0.9571 | Attacker IP: 198.51.100.77 | Pkt: Ether / IP / TCP 198.51.100.77:55555 > 192.168.1.50:http S
+[2026-09-17 02:04:46] [DRY-RUN] Would block IP via firewall: 198.51.100.77

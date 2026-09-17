@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+logs/neat-checkpoint-*
+logs/test_evidence/
+data/*.db
+data/*.pcap
