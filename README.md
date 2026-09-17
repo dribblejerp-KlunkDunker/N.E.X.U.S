@@ -93,7 +93,13 @@ Traditional machine learning relies on rigid, static architectures trained on hi
 │   ├── evolve.py                 # NEAT evolutionary fitness engine
 │   ├── sniff_and_respond.py      # Live guardian, hot-reloader & firewall enforcement
 │   ├── continuous_loop.py        # Background evolution & promotion loop
-│   └── train_predictive.py       # Sequence dataset generator & LSTM trainer
+│   ├── train_predictive.py       # Sequence dataset generator & LSTM trainer
+│   ├── distributed_ray_evolve.py # Phase 4 Ray multi-core/cluster evolution
+│   ├── launch_cluster_node.py    # Ray cluster head/worker node orchestrator
+│   ├── dataset_downloader.py     # Real PCAP & NSL-KDD dataset ingester
+│   └── dashboard.py              # FastAPI + SSE real-time web command server
+├── web/
+│   └── index.html                # Tactical command dashboard UI (Canvas + Tailwind)
 └── README.md                     # Master operational runbook
 ```
 
@@ -228,6 +234,23 @@ python scripts/launch_cluster_node.py --worker --head-ip <HEAD_IP> --port 6379
 # Dispatch distributed job to cluster:
 python scripts/distributed_ray_evolve.py --address ray://<HEAD_IP>:10001 --generations 50
 ```
+
+### 10. Launch Tactical Command Web Dashboard (Phase 2 & Sprint 2)
+```powershell
+# Run FastAPI server on port 8000:
+python scripts/dashboard.py --port 8000
+
+# With active defense (enforces live Windows firewall blocks for flagged threats):
+python scripts/dashboard.py --port 8000 --active-defense
+```
+Open `http://localhost:8000` in any web browser:
+- **Live Anomaly Speedometer**: Real-time threat coefficient gauge ($0.0000 - 1.0000$) with dynamic green/yellow/crimson transitions.
+- **Demonic Skull Alarm Banner**: Pulsing skull alert with audio chirp when threat score $\ge 0.85$.
+- **Living NEAT Genome Canvas**: Live topology visualizer of the champion neural network's inputs, synapses, and output.
+- **Real-Time Packet Stream & 20-D Feature Drawer**: Click any packet row to slide open all 20 normalized features (Shannon entropy, TTL divergence, flag anomalies, window ratio).
+- **Active Ban Matrix & Live Countdown**: Real-time TTL countdown with one-click manual unban API (`POST /api/bans/unban/{ip}`).
+- **RFC 5961 State Plane Feed**: Live feed for challenge-ACKs, out-of-window RSTs, and forensic dumps.
+- **One-Click Simulation Triggers**: Test `⚡ SIMULATE SYN FLOOD` and `+ SIMULATE CLEAN WEB` directly from the top navigation bar.
 
 ---
 
