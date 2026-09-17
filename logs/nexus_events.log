@@ -16,3 +16,17 @@
 [2026-09-17 02:04:46] [NEXUS] Loaded champion genome from genomes/champion.pkl (Fitness: 0.9980025898631232)
 [2026-09-17 02:04:46] [ANOMALY DETECTED] Threat Score: 0.9571 | Attacker IP: 198.51.100.77 | Pkt: Ether / IP / TCP 198.51.100.77:55555 > 192.168.1.50:http S
 [2026-09-17 02:04:46] [DRY-RUN] Would block IP via firewall: 198.51.100.77
+[2026-09-17 02:11:21] [NEXUS] Loaded champion genome from genomes/champion.pkl (Fitness: 0.9980025898631232)
+[2026-09-17 02:11:21] [ANOMALY DETECTED] Threat Score: 0.9571 | Attacker IP: 198.51.100.77 | Pkt: Ether / IP / TCP 198.51.100.77:55555 > 192.168.1.50:http S
+[2026-09-17 02:11:21] [DRY-RUN] Would block IP via firewall: 198.51.100.77 (TTL: 1800s)
+[2026-09-17 02:11:21] [ANOMALY DETECTED] Threat Score: 0.9932 | Attacker IP: 198.51.100.77 | Pkt: Ether / IP / TCP 198.51.100.77:55555 > 192.168.1.50:http S
+[2026-09-17 02:11:32] [NEXUS] Loaded champion genome from genomes/champion.pkl (Fitness: 0.9980025898631232)
+[2026-09-17 02:11:32] [ANOMALY DETECTED] Threat Score: 0.9571 | Attacker IP: 198.51.100.77 | Pkt: Ether / IP / TCP 198.51.100.77:55555 > 192.168.1.50:http S
+[2026-09-17 02:11:32] [DRY-RUN] Would block IP via firewall: 198.51.100.77 (TTL: 1800s)
+[2026-09-17 02:11:32] [DRY-RUN] Demonic RST armed for 198.51.100.77:55555 (bidirectional, seq=0, ack=1001, count=2)
+[2026-09-17 02:11:32] [ANOMALY DETECTED] Threat Score: 0.9932 | Attacker IP: 198.51.100.77 | Pkt: Ether / IP / TCP 198.51.100.77:55555 > 192.168.1.50:http S
+[2026-09-17 02:11:32] [DRY-RUN] Demonic RST armed for 198.51.100.77:55555 (bidirectional, seq=0, ack=1001, count=2)
+[2026-09-17 02:15:51] [NEXUS] Loaded champion genome from genomes/champion.pkl (Fitness: 0.9980025898631232)
+[2026-09-17 02:15:51] [ANOMALY DETECTED] Threat Score: 0.9571 | Attacker IP: 198.51.100.77 | Pkt: Ether / IP / TCP 198.51.100.77:55555 > 192.168.1.50:http S
+[2026-09-17 02:15:51] [DRY-RUN] Would block IP via firewall: 198.51.100.77 (TTL: 1800s)
+[2026-09-17 02:15:51] [ANOMALY DETECTED] Threat Score: 0.9932 | Attacker IP: 198.51.100.77 | Pkt: Ether / IP / TCP 198.51.100.77:55555 > 192.168.1.50:http S
