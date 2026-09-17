@@ -228,3 +228,24 @@ python scripts/launch_cluster_node.py --worker --head-ip <HEAD_IP> --port 6379
 # Dispatch distributed job to cluster:
 python scripts/distributed_ray_evolve.py --address ray://<HEAD_IP>:10001 --generations 50
 ```
+
+---
+
+## Prioritized High-Impact Improvements Roadmap
+
+Ranked by **Value vs. Effort** for upcoming sprints:
+
+### Top Priority (Sprint 1 - Immediate Focus)
+1. **Real Training Data Ingestion** (Medium / Very High): Ingest real-world attack captures (CIC-IDS2017, NSL-KDD, Stratosphere CTU-13) alongside local home server PCAPs.
+2. **Enhanced Feature Set** (Low-Medium / High): Expand from 12 to 20+ features (Shannon payload entropy, TTL variance, anomalous TCP flag combinations, window scaling ratios).
+3. **Temporary IP Ban List (TTL Auto-Expiry)** (Low / High): Automatically unblock attacker IPs after 10–60 minutes to prevent firewall rule clutter.
+4. **Response Cooldown & Rate Limiting** (Very Low / Medium-High): Token bucket rate-limiting per attacker IP (max 1 countermeasure / alert per 30–60s).
+5. **Real-time Logging & Webhook Alerts** (Low / High): Alert dispatcher streaming to Discord/Telegram/Slack webhooks and structured JSON audit logs.
+6. **Bidirectional RST (Lab Mode)** (Low / Medium): In simulation mode, dispatch RST packets to both client and server simultaneously.
+
+### Strong Medium-Term Upgrades (Sprint 2)
+- **Automatic Champion Promotion + Rollback**: Automatically revert to the previous champion if a candidate exhibits higher false alarm rates on validation data.
+- **Live Web Dashboard**: FastAPI / WebSocket dashboard showing real-time threat scores, active flows, and firewall blocks.
+- **Trusted Device & Subnet Whitelist**: Dedicated CIDR/IP/MAC configuration to safeguard local streaming, gaming, and development.
+- **Predictive LSTM Integration**: Proactively adjust alert sensitivity before packet saturation occurs.
+
