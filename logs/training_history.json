@@ -2,38 +2,24 @@
   "evolution_history": [
     {
       "generation": 0,
-      "best_fitness": 0.5548,
-      "avg_fitness": 0.0724,
+      "best_fitness": 0.5173,
+      "avg_fitness": 0.0555,
       "nodes": 1,
-      "connections": 12
+      "connections": 20
     },
     {
       "generation": 1,
-      "best_fitness": 0.6436,
-      "avg_fitness": 0.2099,
+      "best_fitness": 0.6594,
+      "avg_fitness": 0.1156,
       "nodes": 1,
-      "connections": 12
+      "connections": 19
     },
     {
       "generation": 2,
-      "best_fitness": 0.6929,
-      "avg_fitness": 0.2843,
-      "nodes": 2,
-      "connections": 13
-    },
-    {
-      "generation": 3,
-      "best_fitness": 0.7527,
-      "avg_fitness": 0.302,
-      "nodes": 2,
-      "connections": 13
-    },
-    {
-      "generation": 4,
-      "best_fitness": 0.7613,
-      "avg_fitness": 0.3289,
-      "nodes": 2,
-      "connections": 12
+      "best_fitness": 0.6594,
+      "avg_fitness": 0.1664,
+      "nodes": 1,
+      "connections": 19
     }
   ],
   "ray_benchmark": {
@@ -43,7 +29,7 @@
     "speedup_factor": "8.3x Linear"
   },
   "population": {
-    "size": 100,
+    "size": 150,
     "species_count": 1,
     "mutation_rate": 0.8,
     "selection_elitism": 2
