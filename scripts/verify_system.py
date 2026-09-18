@@ -72,9 +72,11 @@ def run_diagnostics():
             import neat
             cfg = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_path)
             num_inputs = len(cfg.genome_config.input_keys)
+            act_ok = set(cfg.genome_config.activation_options) == {"sigmoid", "relu", "tanh"}
             print_check("NEAT Input Dimension (20-D)", num_inputs == 20, f"num_inputs = {num_inputs}")
             print_check("NEAT Population Size (150)", cfg.pop_size == 150, f"pop_size = {cfg.pop_size}")
-            if num_inputs != 20 or cfg.pop_size != 150:
+            print_check("Non-Linear Activations", act_ok, f"{', '.join(cfg.genome_config.activation_options)}")
+            if num_inputs != 20 or cfg.pop_size != 150 or not act_ok:
                 all_passed = False
         except Exception as e:
             print_check("NEAT Config Parsing", False, str(e))
