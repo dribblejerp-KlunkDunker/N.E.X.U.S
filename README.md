@@ -252,6 +252,25 @@ Open `http://localhost:8000` in any web browser:
 - **RFC 5961 State Plane Feed**: Live feed for challenge-ACKs, out-of-window RSTs, and forensic dumps.
 - **One-Click Simulation Triggers**: Test `⚡ SIMULATE SYN FLOOD` and `+ SIMULATE CLEAN WEB` directly from the top navigation bar.
 
+### 11. Run Real Production Neuroevolution Tonight (16-Core Ray Distributed)
+```powershell
+# High-Intensity Run (30 Generations, ~2-3 Minutes on 16 CPUs):
+python scripts/train_for_real.py --cpus 16 --generations 30 --live-sniff 150
+
+# Deep Overnight Run (100 Generations, Multi-Species Evolution):
+python scripts/train_for_real.py --cpus 16 --overnight --live-sniff 150
+
+# Or double-click the one-click Windows batch launcher:
+.\train_overnight.bat
+```
+Features of the production training engine:
+- **Comprehensive Multi-Class Threat Corpus**: 6,300+ packets encompassing volumetric SYN floods, stealth XMAS/NULL/FIN port scans, high-entropy exploit payloads, SSH brute-force probes, and RFC 5961 RST attacks alongside real live local NIC baseline captures.
+- **Ray Distributed Cluster Acceleration**: Automatically distributes genome evaluations across all 16 cores on your AMD Ryzen 9 processor with zero-copy shared memory plasma store.
+- **Holdout Validation Safety Gate**: Automatically verifies that candidate champions achieve $< 0.5\%$ False Positive Rate and $> 98\%$ True Positive Rate on unseen holdout validation datasets before promotion.
+- **Hot-Reload Promotion**: Updates `genomes/champion.pkl`, archives the previous champion to `genomes/archive/`, and signals running guardians and the dashboard with zero downtime.
+- **Simultaneous PyTorch LSTM Retraining**: Sequences temporal events ($T=30$) and updates `models/predictive_brain.pt` and production `models/predictive_brain.onnx`.
+- **Live Dashboard Telemetry**: Writes real-time generational fitness to `logs/training_history.json`, animating the live curve on Deck 2 of the dashboard!
+
 ---
 
 ## Prioritized High-Impact Improvements Roadmap
