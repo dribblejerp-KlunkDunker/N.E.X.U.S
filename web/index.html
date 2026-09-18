@@ -131,7 +131,10 @@
           <div class="flex items-center gap-2">
             <span class="font-display font-extrabold text-base tracking-widest text-white">NEXUS</span>
             <span class="text-[10px] px-1.5 py-0.5 rounded bg-laserCyan/10 text-laserCyan border border-laserCyan/30 font-semibold tracking-wider">DEFENSE HUD v2.4</span>
-            <span id="defense-mode-pill" class="text-[10px] px-1.5 py-0.5 rounded bg-matrixGreen/10 text-matrixGreen border border-matrixGreen/30 font-semibold tracking-wider">ARMED (SIMULATION)</span>
+            <button id="defense-mode-pill" onclick="toggleDefenseMode()" title="Click to toggle between Safe Audit Mode and Live Windows Firewall Blocking" class="text-[10px] px-2 py-0.5 rounded bg-matrixGreen/10 hover:bg-matrixGreen/20 text-matrixGreen border border-matrixGreen/30 font-semibold tracking-wider transition cursor-pointer flex items-center gap-1.5">
+              <span id="defense-mode-dot" class="w-1.5 h-1.5 rounded-full bg-matrixGreen"></span>
+              <span id="defense-mode-label">ARMED (AUDIT / SAFE)</span>
+            </button>
           </div>
           <p class="text-[10px] text-textMuted tracking-tight">RFC 5961 PASSIVE FLOW TRACKING // NEAT NEUROEVOLUTION ENGINE</p>
         </div>
@@ -145,10 +148,10 @@
         </div>
         <div>
           <div class="text-[10px] text-textMuted font-bold tracking-wider">NETWORK NIC CAPTURE:</div>
-          <div id="capture-status-text" class="text-xs font-bold text-slate-400">STANDBY (SIMULATION)</div>
+          <div id="capture-status-text" class="text-xs font-bold text-slate-400">STANDBY (OFFLINE)</div>
         </div>
-        <button id="master-capture-btn" onclick="toggleLiveCapture()" class="ml-2 px-3 py-1 rounded text-xs font-bold font-mono tracking-wider transition flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600">
-          <span>ACTIVATE LIVE SNIFF</span>
+        <button id="master-capture-btn" onclick="toggleLiveCapture()" title="Click to start/pause live packet sniffing from your physical Wi-Fi/Ethernet adapter" class="ml-2 px-3 py-1 rounded text-xs font-bold font-mono tracking-wider transition flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 cursor-pointer">
+          <span id="master-capture-label">ACTIVATE LIVE SNIFF</span>
         </button>
       </div>
 
@@ -666,24 +669,53 @@
     function updateCaptureUI(running) {
       isLiveSniffing = running;
       const btn = document.getElementById('master-capture-btn');
+      const label = document.getElementById('master-capture-label');
       const text = document.getElementById('capture-status-text');
       const radarCircle = document.getElementById('radar-circle');
       const radarDot = document.getElementById('radar-indicator');
 
       if (running) {
-        text.innerText = "ACTIVE (SNIFFING NIC)";
+        text.innerText = "ACTIVE (SNIFFING REAL NIC)";
         text.className = "text-xs font-bold text-laserCyan";
-        btn.innerHTML = "<span>PAUSE LIVE SNIFF</span>";
-        btn.className = "ml-2 px-3 py-1 rounded text-xs font-bold font-mono tracking-wider transition flex items-center gap-2 bg-laserCyan/20 hover:bg-laserCyan/30 text-laserCyan border border-laserCyan/60 shadow-cyanGlow";
+        if (label) label.innerText = "PAUSE LIVE SNIFF";
+        btn.className = "ml-2 px-3 py-1 rounded text-xs font-bold font-mono tracking-wider transition flex items-center gap-2 bg-laserCyan/20 hover:bg-laserCyan/30 text-laserCyan border border-laserCyan/60 shadow-cyanGlow cursor-pointer";
         radarCircle.className = "w-6 h-6 rounded-full border border-laserCyan animate-ping";
         radarDot.className = "w-2 h-2 rounded-full bg-laserCyan shadow-cyanGlow";
       } else {
-        text.innerText = "STANDBY (SIMULATION)";
+        text.innerText = "STANDBY (OFFLINE)";
         text.className = "text-xs font-bold text-slate-400";
-        btn.innerHTML = "<span>ACTIVATE LIVE SNIFF</span>";
-        btn.className = "ml-2 px-3 py-1 rounded text-xs font-bold font-mono tracking-wider transition flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600";
+        if (label) label.innerText = "ACTIVATE LIVE SNIFF";
+        btn.className = "ml-2 px-3 py-1 rounded text-xs font-bold font-mono tracking-wider transition flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 cursor-pointer";
         radarCircle.className = "w-6 h-6 rounded-full border border-slate-700";
         radarDot.className = "w-2 h-2 rounded-full bg-slate-500";
+      }
+    }
+
+    // Active Defense Toggle (Safe Audit vs Live Firewall Blocking)
+    async function toggleDefenseMode() {
+      try {
+        const res = await fetch("/api/defense/toggle", { method: "POST" });
+        const data = await res.json();
+        updateDefenseUI(data.active_defense);
+        playTacticalChirp(data.active_defense ? 1000 : 500, 'sine', 0.15);
+      } catch (e) {
+        console.error("Defense toggle failed:", e);
+      }
+    }
+
+    function updateDefenseUI(active) {
+      const pill = document.getElementById('defense-mode-pill');
+      const label = document.getElementById('defense-mode-label');
+      const dot = document.getElementById('defense-mode-dot');
+      if (!pill) return;
+      if (active) {
+        if (label) label.innerText = "ACTIVE DEFENSE (REAL FIREWALL BLOCKS)";
+        pill.className = "text-[10px] px-2 py-0.5 rounded bg-neonRed/20 hover:bg-neonRed/30 text-neonRed border border-neonRed/50 font-semibold tracking-wider transition cursor-pointer flex items-center gap-1.5 shadow-redGlow animate-pulse";
+        if (dot) dot.className = "w-1.5 h-1.5 rounded-full bg-neonRed";
+      } else {
+        if (label) label.innerText = "ARMED (AUDIT / SAFE)";
+        pill.className = "text-[10px] px-2 py-0.5 rounded bg-matrixGreen/10 hover:bg-matrixGreen/20 text-matrixGreen border border-matrixGreen/30 font-semibold tracking-wider transition cursor-pointer flex items-center gap-1.5";
+        if (dot) dot.className = "w-1.5 h-1.5 rounded-full bg-matrixGreen";
       }
     }
 
@@ -1043,6 +1075,7 @@
         document.getElementById('champ-fitness').innerText = data.fitness ? data.fitness.toFixed(4) : "0.9980";
         if (data.bans) renderBans(data.bans);
         if (data.live_sniffing !== undefined) updateCaptureUI(data.live_sniffing);
+        if (data.active_defense !== undefined) updateDefenseUI(data.active_defense);
       } catch (e) {}
 
       // Fetch dynamic training stats for Deck 2
@@ -1058,6 +1091,8 @@
             addPacketRow(msg.data);
           } else if (msg.type === "bans") {
             renderBans(msg.data);
+          } else if (msg.type === "defense_mode") {
+            updateDefenseUI(msg.data.active_defense);
           } else if (msg.type === "velocity") {
             document.getElementById('velocity-pps').innerText = msg.data.pps;
             document.getElementById('velocity-kbps').innerText = msg.data.kbps.toFixed(1);

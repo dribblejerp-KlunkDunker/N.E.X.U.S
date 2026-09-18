@@ -470,7 +470,8 @@ async def serve_dashboard():
 @app.get("/api/status")
 async def get_status():
     return {
-        "status": "ARMED" if SHARED_STATE["active_defense"] else "ARMED (SIMULATION)",
+        "status": "ARMED (FIREWALL BLOCKS)" if SHARED_STATE["active_defense"] else "ARMED (SIMULATION AUDIT)",
+        "active_defense": SHARED_STATE["active_defense"],
         "fitness": SHARED_STATE["champion_fitness"],
         "total_packets": SHARED_STATE["packets_evaluated"],
         "total_threats": SHARED_STATE["threats_flagged"],
@@ -640,6 +641,17 @@ async def toggle_sniff():
     else:
         start_sniffer()
     return {"running": SNIFFER_RUNNING}
+
+
+@app.post("/api/defense/toggle")
+async def toggle_defense():
+    SHARED_STATE["active_defense"] = not SHARED_STATE["active_defense"]
+    status_label = "ARMED (FIREWALL BLOCKS)" if SHARED_STATE["active_defense"] else "ARMED (SIMULATION AUDIT)"
+    broadcast_event("defense_mode", {
+        "active_defense": SHARED_STATE["active_defense"],
+        "status": status_label
+    })
+    return {"active_defense": SHARED_STATE["active_defense"], "status": status_label}
 
 
 @app.post("/api/simulate/{attack_type}")
