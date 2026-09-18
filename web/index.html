@@ -3,251 +3,596 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NEXUS Tactical Command // Cyber-Guardian</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>NEXUS // CYBER-GUARDIAN TACTICAL HUD</title>
+
+  <!-- Google Fonts: JetBrains Mono & Chakra Petch -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,600;0,800;1,400&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
-          colors: {
-            obsidian: '#08090d',
-            surface: '#0f111a',
-            surfaceCard: '#151824',
-            surfaceBorder: '#23283b',
-            crimson: '#ff2a5f',
-            crimsonGlow: 'rgba(255, 42, 95, 0.35)',
-            emerald: '#00ff9d',
-            emeraldGlow: 'rgba(0, 255, 157, 0.25)',
-            cyan: '#00f0ff',
-            cyanGlow: 'rgba(0, 240, 255, 0.25)',
-            amber: '#ffb703',
-          },
           fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['Fira Code', 'monospace'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+            display: ['"Chakra Petch"', 'sans-serif']
+          },
+          colors: {
+            void: '#05070a',
+            panel: '#0a0d14',
+            panelBorder: '#161c28',
+            panelLight: '#111723',
+            laserCyan: '#00f0ff',
+            neonRed: '#ff003c',
+            matrixGreen: '#00ff88',
+            warningAmber: '#ffb703',
+            textMuted: '#6b7994'
+          },
+          boxShadow: {
+            cyanGlow: '0 0 20px rgba(0, 240, 255, 0.25)',
+            redGlow: '0 0 25px rgba(255, 0, 60, 0.4)',
+            greenGlow: '0 0 20px rgba(0, 255, 136, 0.25)'
           }
         }
       }
     }
   </script>
+
   <style>
-    body { background-color: #08090d; color: #e2e8f0; }
-    .glow-crimson { box-shadow: 0 0 20px rgba(255, 42, 95, 0.35); }
-    .glow-cyan { box-shadow: 0 0 20px rgba(0, 240, 255, 0.25); }
-    .glow-emerald { box-shadow: 0 0 20px rgba(0, 255, 157, 0.25); }
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #0f111a; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #23283b; border-radius: 3px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #3b425b; }
-    @keyframes pulseSkull {
-      0%, 100% { transform: scale(1); opacity: 0.95; }
-      50% { transform: scale(1.03); opacity: 1; filter: drop-shadow(0 0 15px #ff2a5f); }
+    body {
+      background-color: #05070a;
+      background-image: 
+        linear-gradient(rgba(0, 240, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.015) 1px, transparent 1px);
+      background-size: 32px 32px;
+      font-family: 'JetBrains Mono', monospace;
     }
-    .skull-pulse { animation: pulseSkull 1.8s infinite ease-in-out; }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #0a0d14; }
+    ::-webkit-scrollbar-thumb { background: #1a2233; border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: #00f0ff; }
+
+    /* Technical corner brackets */
+    .hud-box {
+      position: relative;
+      background: #0a0d14;
+      border: 1px solid #161c28;
+    }
+    .hud-box::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: -1px;
+      width: 8px; height: 8px;
+      border-top: 2px solid #00f0ff;
+      border-left: 2px solid #00f0ff;
+      pointer-events: none;
+    }
+    .hud-box::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; right: -1px;
+      width: 8px; height: 8px;
+      border-bottom: 2px solid #00f0ff;
+      border-right: 2px solid #00f0ff;
+      pointer-events: none;
+    }
+
+    /* Red variant */
+    .hud-box-danger::before { border-color: #ff003c; }
+    .hud-box-danger::after { border-color: #ff003c; }
+
+    /* Scanline overlay */
+    .scanline-overlay {
+      background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        rgba(255,255,255,0) 50%,
+        rgba(0, 0, 0, 0.3) 50%,
+        rgba(0, 0, 0, 0.3)
+      );
+      background-size: 100% 4px;
+      pointer-events: none;
+    }
+
+    @keyframes skullPulse {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px #ff003c); }
+      50% { transform: scale(1.08); filter: drop-shadow(0 0 25px #ff003c); }
+    }
+    .skull-alarm { animation: skullPulse 1.2s infinite ease-in-out; }
+
+    @keyframes radarSweep {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .radar-sweep { animation: radarSweep 3s linear infinite; }
   </style>
 </head>
-<body class="font-sans antialiased min-h-screen flex flex-col custom-scrollbar select-none">
+<body class="text-slate-200 min-h-screen flex flex-col antialiased selection:bg-laserCyan/30 selection:text-white">
 
-  <!-- TOP HERO BAR -->
-  <header class="border-b border-surfaceBorder bg-surface/80 backdrop-blur-md sticky top-0 z-50 px-6 py-3.5">
-    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+  <!-- TOP MILITARY HUD / TELEMETRY BANNER -->
+  <header class="border-b border-panelBorder bg-panel/90 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-[1600px] mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Brand & Tactical Status -->
       <div class="flex items-center gap-3">
-        <div class="w-3 h-3 rounded-full bg-emerald animate-ping"></div>
-        <div class="flex items-baseline gap-2">
-          <h1 class="text-xl font-extrabold tracking-wider font-mono text-white flex items-center gap-2">
-            <span class="text-cyan">NEXUS</span> COMMAND
-          </h1>
-          <span class="text-xs px-2 py-0.5 rounded bg-surfaceBorder font-mono text-cyan/90 border border-cyan/30">V2.4 TACTICAL</span>
+        <div class="w-8 h-8 rounded border border-laserCyan/40 bg-laserCyan/10 flex items-center justify-center text-laserCyan font-display font-black text-lg">
+          Ω
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-display font-extrabold text-base tracking-widest text-white">NEXUS</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-laserCyan/10 text-laserCyan border border-laserCyan/30 font-semibold tracking-wider">DEFENSE HUD v2.4</span>
+            <span id="defense-mode-pill" class="text-[10px] px-1.5 py-0.5 rounded bg-matrixGreen/10 text-matrixGreen border border-matrixGreen/30 font-semibold tracking-wider">ARMED (SIMULATION)</span>
+          </div>
+          <p class="text-[10px] text-textMuted tracking-tight">RFC 5961 PASSIVE FLOW TRACKING // NEAT NEUROEVOLUTION ENGINE</p>
         </div>
       </div>
 
-      <!-- Quick Metrics Bar -->
-      <div class="flex items-center gap-6 text-sm font-mono">
-        <div class="flex items-center gap-2">
-          <span class="text-slate-400 text-xs">GUARDIAN:</span>
-          <span id="guardian-status" class="px-2 py-0.5 rounded text-xs font-semibold bg-emerald/10 text-emerald border border-emerald/30">ARMED (ACTIVE)</span>
+      <!-- MASTER LIVE CAPTURE SWITCH (PROMINENT & UNMISSABLE) -->
+      <div class="flex items-center gap-3 bg-panelLight px-3 py-1.5 rounded border border-panelBorder">
+        <div class="relative w-6 h-6 flex items-center justify-center">
+          <div id="radar-circle" class="w-6 h-6 rounded-full border border-slate-700"></div>
+          <div id="radar-indicator" class="w-2 h-2 rounded-full bg-slate-500"></div>
         </div>
-        <div class="flex items-center gap-2">
-          <span class="text-slate-400 text-xs">CHAMPION:</span>
-          <span id="champion-fitness" class="text-cyan font-semibold">FITNESS: 0.9980</span>
+        <div>
+          <div class="text-[10px] text-textMuted font-bold tracking-wider">NETWORK NIC CAPTURE:</div>
+          <div id="capture-status-text" class="text-xs font-bold text-slate-400">STANDBY (SIMULATION)</div>
         </div>
-        <div class="flex items-center gap-2">
-          <span class="text-slate-400 text-xs">TOTAL PACKETS:</span>
-          <span id="stat-packets" class="text-white font-semibold">0</span>
+        <button id="master-capture-btn" onclick="toggleLiveCapture()" class="ml-2 px-3 py-1 rounded text-xs font-bold font-mono tracking-wider transition flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600">
+          <span>ACTIVATE LIVE SNIFF</span>
+        </button>
+      </div>
+
+      <!-- Real-Time Throughput / Velocity Ticker -->
+      <div class="hidden xl:flex items-center gap-6 text-xs font-mono">
+        <div>
+          <span class="text-textMuted text-[10px] block">THROUGHPUT:</span>
+          <span id="velocity-pps" class="text-laserCyan font-bold">0</span> <span class="text-textMuted text-[10px]">PPS</span>
         </div>
-        <div class="flex items-center gap-2">
-          <span class="text-slate-400 text-xs">THREATS:</span>
-          <span id="stat-threats" class="text-crimson font-bold">0</span>
+        <div>
+          <span class="text-textMuted text-[10px] block">BANDWIDTH:</span>
+          <span id="velocity-kbps" class="text-white font-bold">0.0</span> <span class="text-textMuted text-[10px]">KB/s</span>
         </div>
-        <div class="flex items-center gap-2">
-          <span class="text-slate-400 text-xs">ACTIVE BANS:</span>
-          <span id="stat-bans" class="text-amber font-bold">0</span>
+        <div>
+          <span class="text-textMuted text-[10px] block">CHAMPION FITNESS:</span>
+          <span id="champ-fitness" class="text-matrixGreen font-bold">0.9980</span>
         </div>
       </div>
 
-      <!-- Actions Toolbar -->
+      <!-- Tactical Action Bar -->
       <div class="flex items-center gap-2">
-        <button id="btn-sniff" onclick="toggleSniffing()" class="px-3 py-1.5 rounded text-xs font-mono bg-surfaceCard hover:bg-surfaceBorder border border-surfaceBorder text-slate-300 transition flex items-center gap-1.5">
-          <span id="sniff-dot" class="w-2 h-2 rounded-full bg-slate-500"></span> <span id="sniff-label">LIVE CAPTURE: OFF</span>
+        <button id="audio-toggle-btn" onclick="toggleAudio()" class="px-2.5 py-1 rounded text-xs font-mono bg-panelLight hover:bg-panelBorder border border-panelBorder text-slate-300 transition">
+          🔊 <span id="audio-label">AUDIO: ON</span>
         </button>
-        <button id="btn-audio" onclick="toggleAudio()" class="px-3 py-1.5 rounded text-xs font-mono bg-surfaceCard hover:bg-surfaceBorder border border-surfaceBorder text-slate-300 transition flex items-center gap-1.5">
-          <span>🔊</span> <span id="audio-label">AUDIO: ON</span>
+
+        <!-- Quick Simulation Triggers -->
+        <button onclick="triggerSimulatedAttack('synflood')" class="px-3 py-1 rounded text-xs font-bold font-mono bg-neonRed/20 hover:bg-neonRed/30 border border-neonRed/60 text-neonRed transition shadow-sm hover:shadow-redGlow">
+          ⚡ SYN FLOOD
         </button>
-        <button onclick="triggerSimulatedAttack('synflood')" class="px-3 py-1.5 rounded text-xs font-mono font-semibold bg-crimson/20 hover:bg-crimson/30 border border-crimson/50 text-crimson transition shadow-sm hover:shadow-crimsonGlow">
-          ⚡ SIMULATE SYN FLOOD
+        <button onclick="triggerSimulatedAttack('xmasscan')" class="px-3 py-1 rounded text-xs font-bold font-mono bg-warningAmber/20 hover:bg-warningAmber/30 border border-warningAmber/60 text-warningAmber transition">
+          ⚠️ XMAS SCAN
         </button>
-        <button onclick="triggerSimulatedAttack('clean')" class="px-3 py-1.5 rounded text-xs font-mono bg-surfaceCard hover:bg-surfaceBorder border border-surfaceBorder text-emerald transition">
-          + SIMULATE CLEAN WEB
+        <button onclick="triggerSimulatedAttack('clean')" class="px-3 py-1 rounded text-xs font-bold font-mono bg-matrixGreen/20 hover:bg-matrixGreen/30 border border-matrixGreen/60 text-matrixGreen transition">
+          + CLEAN WEB
         </button>
+      </div>
+
+    </div>
+
+    <!-- DECK TABS -->
+    <div class="border-t border-panelBorder/70 bg-void/80 px-4 flex items-center justify-between text-xs font-mono">
+      <div class="flex items-center gap-1">
+        <button id="tab-btn-ops" onclick="switchDeck('ops')" class="px-4 py-1.5 font-bold border-b-2 border-laserCyan text-laserCyan bg-laserCyan/5 transition">
+          [ DECK 1: TACTICAL OPS & ATTACK DOSSIER ]
+        </button>
+        <button id="tab-btn-lab" onclick="switchDeck('lab')" class="px-4 py-1.5 font-bold border-b-2 border-transparent text-textMuted hover:text-white transition">
+          [ DECK 2: NEURAL GENOME & TRAINING LAB ]
+        </button>
+      </div>
+      <div class="text-[11px] text-textMuted hidden md:block">
+        SYSTEM CLOCK: <span id="system-time" class="text-slate-300 font-semibold">00:00:00</span>
       </div>
     </div>
   </header>
 
-  <!-- MAIN DASHBOARD CONTENT -->
-  <main class="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+  <!-- ==================================================================== -->
+  <!-- DECK 1: TACTICAL DEFENSE & ATTACK DOSSIER                             -->
+  <!-- ==================================================================== -->
+  <main id="deck-ops" class="flex-1 max-w-[1600px] w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-    <!-- LEFT COLUMN: THREAT GAUGES, NEAT TOPOLOGY, AND COUNTERMEASURES (5 COLS) -->
+    <!-- LEFT COLUMN: THREAT GAUGES, NEAT TOPOLOGY, & DOSSIER (5 COLS) -->
     <div class="lg:col-span-5 flex flex-col gap-6">
 
-      <!-- THREAT SPEEDOMETER & GAUGE CARD -->
-      <div class="bg-surfaceCard border border-surfaceBorder rounded-xl p-5 relative overflow-hidden">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-sm font-semibold font-mono tracking-wider text-slate-300 flex items-center gap-2">
-            <span class="text-crimson">▶</span> REAL-TIME THREAT SCORE
-          </h2>
-          <span id="threat-badge" class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-emerald/10 text-emerald border border-emerald/30">BASELINE NORMAL</span>
+      <!-- THREAT SPEEDOMETER -->
+      <div class="hud-box p-5">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-neonRed animate-pulse"></span>
+            <h2 class="text-xs font-bold font-display tracking-widest text-slate-300">REAL-TIME ANOMALY SPEEDOMETER</h2>
+          </div>
+          <span id="threat-badge" class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-matrixGreen/15 text-matrixGreen border border-matrixGreen/40">
+            BASELINE NORMAL
+          </span>
         </div>
 
-        <div class="flex items-center justify-center my-2">
-          <div class="relative w-64 h-36 flex items-center justify-center">
-            <svg class="w-64 h-36" viewBox="0 0 200 110">
-              <!-- Background Arc -->
-              <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#23283b" stroke-width="14" stroke-linecap="round"/>
-              <!-- Active Score Arc -->
-              <path id="gauge-arc" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#00ff9d" stroke-width="14" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="251.2" class="transition-all duration-300"/>
-              <!-- Center Text -->
-              <text id="gauge-number" x="100" y="85" text-anchor="middle" class="font-mono text-3xl font-extrabold fill-white">0.0000</text>
-              <text x="100" y="102" text-anchor="middle" class="font-mono text-[9px] fill-slate-400">ANOMALY COEFFICIENT</text>
+        <div class="flex items-center justify-center my-1">
+          <div class="relative w-64 h-32 flex items-center justify-center">
+            <svg class="w-64 h-32" viewBox="0 0 200 100">
+              <!-- Gauge Background Arc -->
+              <path d="M 20 95 A 75 75 0 0 1 180 95" fill="none" stroke="#141a29" stroke-width="12" stroke-linecap="round"/>
+              <!-- Gauge Active Arc -->
+              <path id="gauge-arc" d="M 20 95 A 75 75 0 0 1 180 95" fill="none" stroke="#00ff88" stroke-width="12" stroke-linecap="round" stroke-dasharray="235.6" stroke-dashoffset="235.6" class="transition-all duration-300"/>
+              <!-- Gauge Readout -->
+              <text id="gauge-number" x="100" y="80" text-anchor="middle" class="font-mono text-3xl font-extrabold fill-white">0.0000</text>
+              <text x="100" y="96" text-anchor="middle" class="font-mono text-[8px] fill-textMuted tracking-wider">ANOMALY COEFFICIENT</text>
             </svg>
           </div>
         </div>
 
         <!-- Demonic Skull Alert Banner (Dynamic) -->
-        <div id="demonic-alert-banner" class="hidden mt-3 p-3 bg-crimson/15 border border-crimson/50 rounded-lg text-xs font-mono text-slate-200 glow-crimson">
+        <div id="demonic-alert-banner" class="hidden mt-2 p-3 bg-neonRed/15 border border-neonRed/50 rounded text-xs font-mono text-slate-200">
           <div class="flex items-center gap-3">
-            <div class="text-2xl skull-pulse">💀</div>
+            <div class="text-3xl skull-alarm">💀</div>
             <div class="flex-1">
-              <div class="font-bold text-crimson flex items-center justify-between">
-                <span>DEMONIC DEFENSE ACTIVATED</span>
-                <span class="text-[10px] text-amber">FIREWALL LOCKED</span>
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-neonRed tracking-wider">HOSTILE INTRUSION TERMINATED</span>
+                <span class="text-[10px] bg-neonRed text-black px-1.5 py-0.2 font-bold rounded">POLICY APPLIED</span>
               </div>
-              <p class="text-[11px] text-slate-300 mt-0.5">"I'VE ALREADY TASTED YOUR IP" dispatched.</p>
-              <p id="alert-attacker-ip" class="text-[11px] font-bold text-white mt-0.5">Attacker: 198.51.100.77</p>
+              <p class="text-[11px] text-slate-300 mt-0.5">"I'VE ALREADY TASTED YOUR IP" — Automated Windows Firewall Ingress Block Active</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- LIVING NEAT NEURAL GENOME CANVAS -->
-      <div class="bg-surfaceCard border border-surfaceBorder rounded-xl p-5 flex flex-col flex-1">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-sm font-semibold font-mono tracking-wider text-slate-300 flex items-center gap-2">
-            <span class="text-cyan">▶</span> LIVING NEAT GENOME BRAIN
-          </h2>
-          <span class="text-[11px] font-mono text-slate-400" id="genome-meta">12 IN ➔ 1 OUT</span>
-        </div>
-        <p class="text-xs text-slate-400 mb-3">
-          Real-time neuroevolutionary topology. Synapses pulse as packets pass through the feature sensory pins.
-        </p>
-        <div class="relative flex-1 min-h-[220px] bg-obsidian/70 border border-surfaceBorder rounded-lg overflow-hidden flex items-center justify-center">
-          <canvas id="neural-canvas" width="460" height="230" class="w-full h-full block"></canvas>
-        </div>
-      </div>
-
-      <!-- PREDICTIVE ATTACK HORIZON (LSTM "PSYCHOTIC" BRAIN) -->
-      <div class="bg-surfaceCard border border-surfaceBorder rounded-xl p-5">
-        <div class="flex items-center justify-between mb-2">
-          <h2 class="text-sm font-semibold font-mono tracking-wider text-slate-300 flex items-center gap-2">
-            <span class="text-amber">▶</span> PREDICTIVE ATTACK HORIZON (15-30M)
-          </h2>
-          <span id="horizon-status" class="text-xs font-mono text-emerald">LOW RISK (1.2%)</span>
-        </div>
-        <div class="w-full bg-surfaceBorder h-2 rounded-full overflow-hidden mt-2">
-          <div id="horizon-progress" class="bg-emerald h-full transition-all duration-500 rounded-full" style="width: 1.2%"></div>
-        </div>
-        <p class="text-[11px] text-slate-400 mt-2 font-mono">
-          PyTorch LSTM sliding-window forecaster evaluating pre-attack reconnaissance patterns.
-        </p>
-      </div>
-
-    </div>
-
-    <!-- RIGHT COLUMN: PACKET WATERFALL, BAN MATRIX, AND RFC 5961 STATE (7 COLS) -->
-    <div class="lg:col-span-7 flex flex-col gap-6">
-
-      <!-- LIVE PACKET WATERFALL STREAM -->
-      <div class="bg-surfaceCard border border-surfaceBorder rounded-xl p-5 flex flex-col flex-1">
+      <!-- ATTACKER FORENSIC DOSSIER & GEOLOCATION (EXTREME DEPTH) -->
+      <div class="hud-box p-5">
         <div class="flex items-center justify-between mb-3">
           <div class="flex items-center gap-2">
-            <h2 class="text-sm font-semibold font-mono tracking-wider text-slate-300 flex items-center gap-2">
-              <span class="text-cyan">▶</span> LIVE PACKET WATERFALL
-            </h2>
-            <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan/10 text-cyan border border-cyan/30 font-mono">SSE STREAMING</span>
+            <span class="text-laserCyan">▶</span>
+            <h2 class="text-xs font-bold font-display tracking-widest text-slate-300">ATTACKER FORENSIC DOSSIER</h2>
           </div>
-          <button onclick="clearPacketStream()" class="text-xs font-mono text-slate-400 hover:text-slate-200 transition">CLEAR</button>
+          <span class="text-[10px] text-textMuted font-mono">AUTOMATED ENRICHMENT</span>
         </div>
 
-        <!-- Table Container -->
-        <div class="overflow-x-auto custom-scrollbar max-h-72 flex-1 border border-surfaceBorder rounded-lg">
-          <table class="w-full text-left border-collapse text-xs font-mono">
-            <thead>
-              <tr class="bg-surface text-slate-400 border-b border-surfaceBorder sticky top-0">
-                <th class="p-2.5">TIME</th>
-                <th class="p-2.5">SOURCE</th>
-                <th class="p-2.5">DESTINATION</th>
-                <th class="p-2.5">PROTO</th>
-                <th class="p-2.5">FLAGS</th>
-                <th class="p-2.5">SCORE</th>
+        <div id="dossier-content" class="space-y-3 text-xs font-mono">
+          <!-- Main IP & Geo -->
+          <div class="grid grid-cols-2 gap-2 p-2.5 rounded bg-panelLight border border-panelBorder">
+            <div>
+              <span class="text-[10px] text-textMuted block">ORIGIN IP / PORT:</span>
+              <span id="dossier-ip" class="text-laserCyan font-bold text-sm">--.--.--.--:--</span>
+            </div>
+            <div>
+              <span class="text-[10px] text-textMuted block">GEOLOCATION:</span>
+              <span id="dossier-geo" class="text-white font-bold text-sm">🌐 Awaiting Threat</span>
+            </div>
+          </div>
+
+          <!-- ISP & Threat Attribution -->
+          <div class="space-y-1.5 p-2.5 rounded bg-panelLight border border-panelBorder">
+            <div class="flex justify-between">
+              <span class="text-textMuted">AUTONOMOUS SYSTEM:</span>
+              <span id="dossier-asn" class="text-slate-300 font-semibold text-right truncate max-w-[200px]">--</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-textMuted">THREAT ACTOR PROFILE:</span>
+              <span id="dossier-actor" class="text-warningAmber font-bold text-right truncate max-w-[200px]">--</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-textMuted">PASSIVE OS FINGERPRINT:</span>
+              <span id="dossier-os" class="text-slate-200 font-semibold text-right truncate max-w-[200px]">--</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-textMuted">TARGETED SERVICE:</span>
+              <span id="dossier-target" class="text-matrixGreen font-bold text-right truncate max-w-[200px]">--</span>
+            </div>
+          </div>
+
+          <!-- TCP Frame Micro-Analysis & Hex Dump -->
+          <div class="p-2.5 rounded bg-panelLight border border-panelBorder space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <span class="text-textMuted">SEQ: <span id="dossier-seq" class="text-white">--</span></span>
+              <span class="text-textMuted">ACK: <span id="dossier-ack" class="text-white">--</span></span>
+              <span class="text-textMuted">WIN: <span id="dossier-win" class="text-white">--</span></span>
+              <span class="text-textMuted">TTL: <span id="dossier-ttl" class="text-white">--</span></span>
+            </div>
+            <div class="mt-2">
+              <span class="text-[10px] text-textMuted block mb-0.5">RAW PAYLOAD (HEX & ASCII DUMP):</span>
+              <div id="dossier-hex" class="p-1.5 rounded bg-void border border-panelBorder text-[10px] text-laserCyan overflow-x-auto whitespace-pre font-mono">-- No Active Payload --</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ACTIVE FIREWALL BAN MATRIX (COUNTDOWN TIMERS) -->
+      <div class="hud-box p-5 flex-1">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-neonRed font-bold">🚫</span>
+            <h2 class="text-xs font-bold font-display tracking-widest text-slate-300">ACTIVE FIREWALL BAN MATRIX (TTL 30M)</h2>
+          </div>
+          <span id="active-bans-count" class="px-2 py-0.5 rounded text-[10px] font-bold bg-neonRed/20 text-neonRed border border-neonRed/40 font-mono">0 BANNED</span>
+        </div>
+
+        <div class="overflow-y-auto max-h-48 border border-panelBorder rounded">
+          <table class="w-full text-left text-xs font-mono">
+            <thead class="bg-panelLight text-[10px] text-textMuted uppercase sticky top-0">
+              <tr>
+                <th class="p-2">Attacker IP</th>
+                <th class="p-2">Location</th>
+                <th class="p-2">Time Left</th>
+                <th class="p-2 text-right">Action</th>
               </tr>
             </thead>
-            <tbody id="packet-tbody" class="divide-y divide-surfaceBorder bg-obsidian/40">
-              <!-- Dynamic Rows inserted here -->
+            <tbody id="bans-table-body" class="divide-y divide-panelBorder">
+              <tr>
+                <td colspan="4" class="p-3 text-center text-textMuted italic text-xs">No active host firewall blocks.</td>
+              </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- ACTIVE FIREWALL BAN MATRIX (WITH LIVE COUNTDOWN TIMERS) -->
-      <div class="bg-surfaceCard border border-surfaceBorder rounded-xl p-5">
+    </div>
+
+    <!-- RIGHT COLUMN: LIVING NEAT GENOME BRAIN & REAL-TIME PACKET STREAM (7 COLS) -->
+    <div class="lg:col-span-7 flex flex-col gap-6">
+
+      <!-- LIVING NEAT GENOME BRAIN (ANIMATED SYNAPSE IMPULSES) -->
+      <div class="hud-box p-5">
         <div class="flex items-center justify-between mb-3">
-          <h2 class="text-sm font-semibold font-mono tracking-wider text-slate-300 flex items-center gap-2">
-            <span class="text-crimson">▶</span> ACTIVE FIREWALL BANS (TTL-MANAGED)
-          </h2>
-          <span class="text-xs text-slate-400 font-mono" id="ban-count-label">0 IP(s) ISOLATED</span>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-laserCyan animate-ping"></span>
+              <h2 class="text-xs font-bold font-display tracking-widest text-slate-200">LIVING NEAT GENOME TOPOLOGY // ACTIVE SYNAPSE ENGINE</h2>
+            </div>
+            <p class="text-[10px] text-textMuted font-mono">Real-time impulse conduction from 12 sensor neurons to the anomaly decision core</p>
+          </div>
+          <div class="flex items-center gap-2 text-[10px] font-mono">
+            <span class="flex items-center gap-1 text-laserCyan"><span class="w-2 h-2 rounded-full bg-laserCyan"></span> Excitatory (+)</span>
+            <span class="flex items-center gap-1 text-neonRed"><span class="w-2 h-2 rounded-full bg-neonRed"></span> Inhibitory (-)</span>
+          </div>
         </div>
 
-        <div id="ban-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div class="p-4 rounded-lg bg-surface/60 border border-surfaceBorder text-slate-400 text-xs font-mono text-center col-span-2">
-            No active threat bans. Windows Firewall perimeter clean.
+        <!-- Canvas Container with Scanlines -->
+        <div class="relative w-full h-64 bg-void border border-panelBorder rounded overflow-hidden">
+          <canvas id="neat-canvas" class="w-full h-full block"></canvas>
+          <div class="absolute inset-0 scanline-overlay"></div>
+          
+          <!-- Node Tooltip on Hover -->
+          <div id="canvas-tooltip" class="hidden absolute z-20 px-2 py-1 bg-panel border border-laserCyan/50 rounded text-[10px] font-mono text-white shadow-cyanGlow pointer-events-none">
+            Tooltip
           </div>
         </div>
       </div>
 
-      <!-- RFC 5961 CHALLENGE-ACK & FORENSIC STATE TIMELINE -->
-      <div class="bg-surfaceCard border border-surfaceBorder rounded-xl p-5">
+      <!-- REAL-TIME INGRESS PACKET STREAM TABLE & 20-D FEATURE DRAWER -->
+      <div class="hud-box p-5 flex-1 flex flex-col">
         <div class="flex items-center justify-between mb-3">
-          <h2 class="text-sm font-semibold font-mono tracking-wider text-slate-300 flex items-center gap-2">
-            <span class="text-cyan">▶</span> RFC 5961 STATE PLANE & FORENSIC TIMELINES
-          </h2>
-          <span class="text-xs text-slate-400 font-mono">CANONICAL 4-TUPLES</span>
+          <div class="flex items-center gap-2">
+            <span class="text-laserCyan">▶</span>
+            <h2 class="text-xs font-bold font-display tracking-widest text-slate-300">LIVE PACKET STREAM & 20-D VECTOR INSPECTION</h2>
+          </div>
+          <div class="text-[10px] text-textMuted font-mono">
+            TOTAL EVALUATED: <span id="total-packets-val" class="text-white font-bold">0</span> | THREATS: <span id="total-threats-val" class="text-neonRed font-bold">0</span>
+          </div>
         </div>
-        <div id="rfc-timeline-feed" class="flex flex-col gap-2 max-h-48 overflow-y-auto custom-scrollbar pr-1">
-          <div class="p-2.5 rounded bg-surface/60 border border-surfaceBorder text-xs font-mono text-slate-400">
-            Monitoring TCP sequence numbers and RFC 5961 Challenge-ACK validation...
+
+        <!-- Packet Feed Table -->
+        <div class="flex-1 overflow-y-auto max-h-72 border border-panelBorder rounded">
+          <table class="w-full text-left text-xs font-mono">
+            <thead class="bg-panelLight text-[10px] text-textMuted uppercase sticky top-0">
+              <tr>
+                <th class="p-2">Time</th>
+                <th class="p-2">Source</th>
+                <th class="p-2">Destination</th>
+                <th class="p-2">Flags</th>
+                <th class="p-2">Anomaly Score</th>
+                <th class="p-2 text-right">Attribution</th>
+              </tr>
+            </thead>
+            <tbody id="packets-table-body" class="divide-y divide-panelBorder">
+              <tr>
+                <td colspan="6" class="p-4 text-center text-textMuted italic text-xs">Awaiting incoming network traffic or simulation trigger...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 20-D Slide-out Drawer Preview (Click Row to Populate) -->
+        <div id="feature-drawer" class="mt-3 p-3 bg-panelLight border border-panelBorder rounded text-xs font-mono hidden">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-laserCyan tracking-wider flex items-center gap-2">
+              <span>🔬</span> 20-DIMENSIONAL NORMALIZED FEATURE DUMP
+            </span>
+            <span id="drawer-packet-label" class="text-[10px] text-textMuted">PKT: --</span>
+          </div>
+          <div id="drawer-features-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px]">
+            <!-- Injected via JavaScript -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ==================================================================== -->
+  <!-- DECK 2: NEUROEVOLUTION & TRAINING LAB                                -->
+  <!-- ==================================================================== -->
+  <main id="deck-lab" class="hidden flex-1 max-w-[1600px] w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- LEFT: EVOLUTIONARY TRAJECTORY & CONTROLS (7 COLS) -->
+    <div class="lg:col-span-7 flex flex-col gap-6">
+
+      <!-- GENERATIONS VS FITNESS PROGRESSION GRAPH -->
+      <div class="hud-box p-5">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-matrixGreen">📈</span>
+              <h2 class="text-xs font-bold font-display tracking-widest text-slate-200">POPULATION FITNESS TRAJECTORY (GENERATIONS 0 - 15)</h2>
+            </div>
+            <p class="text-[10px] text-textMuted font-mono">Fitness optimization: high attack spike, low normal MSE, zero false alarm penalty</p>
+          </div>
+          
+          <!-- Trigger Evolution Button -->
+          <button id="evolve-btn" onclick="triggerEvolutionBurst()" class="px-3 py-1.5 rounded text-xs font-mono font-bold bg-laserCyan/20 hover:bg-laserCyan/30 border border-laserCyan/50 text-laserCyan transition flex items-center gap-2">
+            <span>⚡</span> <span id="evolve-btn-label">EVOLVE 5 GENERATIONS</span>
+          </button>
+        </div>
+
+        <!-- SVG Fitness Line Chart -->
+        <div class="relative w-full h-64 bg-void border border-panelBorder rounded p-3 flex flex-col justify-between">
+          <svg id="fitness-chart" class="w-full h-full" viewBox="0 0 500 200">
+            <!-- Grid Lines -->
+            <line x1="40" y1="20" x2="480" y2="20" stroke="#161c28" stroke-dasharray="2"/>
+            <line x1="40" y1="65" x2="480" y2="65" stroke="#161c28" stroke-dasharray="2"/>
+            <line x1="40" y1="110" x2="480" y2="110" stroke="#161c28" stroke-dasharray="2"/>
+            <line x1="40" y1="155" x2="480" y2="155" stroke="#161c28" stroke-dasharray="2"/>
+
+            <!-- Axes Labels -->
+            <text x="10" y="25" class="fill-textMuted font-mono text-[9px]">1.00</text>
+            <text x="10" y="70" class="fill-textMuted font-mono text-[9px]">0.90</text>
+            <text x="10" y="115" class="fill-textMuted font-mono text-[9px]">0.75</text>
+            <text x="10" y="160" class="fill-textMuted font-mono text-[9px]">0.50</text>
+
+            <!-- Line for Best Fitness (Green) -->
+            <path id="chart-line-best" d="M 50 140 L 130 90 L 210 65 L 290 45 L 370 30 L 450 21" fill="none" stroke="#00ff88" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Line for Average Fitness (Cyan) -->
+            <path id="chart-line-avg" d="M 50 180 L 130 150 L 210 120 L 290 95 L 370 70 L 450 55" fill="none" stroke="#00f0ff" stroke-width="1.5" stroke-dasharray="4" stroke-linecap="round"/>
+
+            <!-- Points on Best Fitness -->
+            <circle cx="50" cy="140" r="3" fill="#00ff88"/>
+            <circle cx="130" cy="90" r="3" fill="#00ff88"/>
+            <circle cx="210" cy="65" r="3" fill="#00ff88"/>
+            <circle cx="290" cy="45" r="3" fill="#00ff88"/>
+            <circle cx="370" cy="30" r="3" fill="#00ff88"/>
+            <circle cx="450" cy="21" r="5" fill="#00ff88" class="animate-ping"/>
+            <circle cx="450" cy="21" r="4" fill="#ffffff"/>
+          </svg>
+
+          <!-- Chart Legend -->
+          <div class="flex items-center justify-between text-[10px] font-mono text-textMuted px-2">
+            <div class="flex items-center gap-4">
+              <span class="flex items-center gap-1 text-matrixGreen"><span class="w-3 h-0.5 bg-matrixGreen inline-block"></span> Champion Best (0.9980)</span>
+              <span class="flex items-center gap-1 text-laserCyan"><span class="w-3 h-0.5 bg-laserCyan inline-block border-dashed"></span> Population Avg (0.9240)</span>
+            </div>
+            <span>GEN 0 ──────────────► GEN 15</span>
+          </div>
+        </div>
+
+        <div id="evolution-log" class="mt-3 p-2 bg-panelLight border border-panelBorder rounded text-[11px] font-mono text-textMuted">
+          [SYSTEM]: Active champion loaded from <span class="text-slate-200">genomes/champion.pkl</span>. Ready for on-demand re-evolution.
+        </div>
+      </div>
+
+      <!-- SPECIATION & GENOME COMPLEXITY METRICS -->
+      <div class="hud-box p-5 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+        <div class="p-3 bg-panelLight border border-panelBorder rounded">
+          <span class="text-[10px] text-textMuted block">POPULATION SIZE</span>
+          <span class="text-xl font-bold font-mono text-white">100</span>
+          <span class="text-[9px] text-matrixGreen block">Genomes Evaluated</span>
+        </div>
+        <div class="p-3 bg-panelLight border border-panelBorder rounded">
+          <span class="text-[10px] text-textMuted block">SPECIES COUNT</span>
+          <span class="text-xl font-bold font-mono text-laserCyan">4</span>
+          <span class="text-[9px] text-textMuted block">Dynamic Niches</span>
+        </div>
+        <div class="p-3 bg-panelLight border border-panelBorder rounded">
+          <span class="text-[10px] text-textMuted block">ACTIVE NEURONS</span>
+          <span class="text-xl font-bold font-mono text-matrixGreen">13</span>
+          <span class="text-[9px] text-textMuted block">12 In + 1 Out</span>
+        </div>
+        <div class="p-3 bg-panelLight border border-panelBorder rounded">
+          <span class="text-[10px] text-textMuted block">MUTATION RATE</span>
+          <span class="text-xl font-bold font-mono text-warningAmber">80%</span>
+          <span class="text-[9px] text-textMuted block">Synapse Perturbation</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: RAY CLUSTER BENCHMARKS & PREDICTIVE LSTM FORECASTER (5 COLS) -->
+    <div class="lg:col-span-5 flex flex-col gap-6">
+
+      <!-- RAY DISTRIBUTED CLUSTER SPEED BENCHMARK -->
+      <div class="hud-box p-5">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-laserCyan">⚡</span>
+            <h2 class="text-xs font-bold font-display tracking-widest text-slate-200">RAY DISTRIBUTED THROUGHPUT BENCHMARK</h2>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-laserCyan/20 text-laserCyan border border-laserCyan/40 font-mono">PHASE 4 ACTIVE</span>
+        </div>
+
+        <div class="p-4 bg-panelLight border border-panelBorder rounded space-y-3">
+          <div class="flex items-baseline justify-between">
+            <span class="text-xs text-textMuted">CLUSTER EVALUATION SPEED:</span>
+            <span class="text-2xl font-bold font-mono text-laserCyan">2,330.3 <span class="text-xs font-normal text-slate-400">evals/sec</span></span>
+          </div>
+
+          <!-- Speed comparison bar -->
+          <div>
+            <div class="flex justify-between text-[10px] font-mono text-textMuted mb-1">
+              <span>Single Laptop Core (280/s)</span>
+              <span>16-Core Ryzen Ray Cluster (2,330/s)</span>
+            </div>
+            <div class="w-full h-2.5 bg-void border border-panelBorder rounded overflow-hidden flex">
+              <div class="w-[12%] bg-slate-600"></div>
+              <div class="w-[88%] bg-laserCyan shadow-cyanGlow"></div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-[10px] font-mono pt-1 text-textMuted border-t border-panelBorder">
+            <div>HARDWARE: <span class="text-slate-200">16 Cores / 32 Threads</span></div>
+            <div>SCALING FACTOR: <span class="text-matrixGreen font-bold">8.3x Linear</span></div>
+            <div>SHARED MEMORY: <span class="text-slate-200">Plasma Zero-Copy</span></div>
+            <div>CLUSTER NODES: <span class="text-slate-200">1 Head / Edge Ready</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PREDICTIVE BRAIN: PYTORCH LSTM HORIZON FORECASTER -->
+      <div class="hud-box p-5">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-matrixGreen">🧠</span>
+            <h2 class="text-xs font-bold font-display tracking-widest text-slate-200">PREDICTIVE LSTM RECON HORIZON (PHASE 3)</h2>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-matrixGreen/20 text-matrixGreen border border-matrixGreen/40 font-mono">ONNX RUNTIME</span>
+        </div>
+
+        <div class="p-4 bg-panelLight border border-panelBorder rounded space-y-3 text-xs font-mono">
+          <div class="flex justify-between items-center">
+            <span class="text-textMuted">SEQUENCE ACCURACY:</span>
+            <span class="text-matrixGreen font-bold">100.0% (Validation Pass)</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-textMuted">LOOKBACK WINDOW (T):</span>
+            <span class="text-white font-bold">30 Sliding Packets</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-textMuted">ADVANCE WARNING HORIZON:</span>
+            <span class="text-laserCyan font-bold">15 - 30 Minutes</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-textMuted">CURRENT RECON PROBABILITY:</span>
+            <span id="lstm-recon-prob" class="text-matrixGreen font-bold">0.02 (DORMANT)</span>
+          </div>
+
+          <div class="pt-2 border-t border-panelBorder text-[10px] text-textMuted">
+            MODEL PATH: <span class="text-slate-300">models/predictive_brain.onnx</span>
           </div>
         </div>
       </div>
@@ -256,339 +601,456 @@
 
   </main>
 
-  <!-- POPUP DETAILS MODAL -->
-  <div id="feature-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-surfaceCard border border-surfaceBorder rounded-xl max-w-lg w-full p-6 shadow-2xl">
-      <div class="flex items-center justify-between border-b border-surfaceBorder pb-3 mb-4">
-        <h3 class="text-sm font-bold font-mono text-cyan" id="modal-title">PACKET FEATURE BREAKDOWN</h3>
-        <button onclick="closeFeatureModal()" class="text-slate-400 hover:text-white font-mono text-sm">✕</button>
-      </div>
-      <div id="modal-content" class="grid grid-cols-2 gap-2 text-xs font-mono max-h-80 overflow-y-auto custom-scrollbar">
-        <!-- Feature items populated here -->
-      </div>
-    </div>
-  </div>
-
-  <!-- JAVASCRIPT APP LOGIC -->
+  <!-- ==================================================================== -->
+  <!-- JAVASCRIPT: SSE, CANVAS NEURAL TOPOLOGY, DOSSIER & AUDIO             -->
+  <!-- ==================================================================== -->
   <script>
-    let audioEnabled = true;
+    // Audio Context Synthesizer
     let audioCtx = null;
-    let packetCount = 0;
-    let threatCount = 0;
-    let bans = {};
-    let genomeData = null;
+    let audioEnabled = true;
 
-    // Web Audio alert synthesizer
-    function playThreatTone() {
+    function playTacticalChirp(freq = 880, type = 'sawtooth', duration = 0.15) {
       if (!audioEnabled) return;
       try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = "sawtooth";
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // A5
-        osc.frequency.exponentialRampToValueAtTime(220, audioCtx.currentTime + 0.35);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.35);
-      } catch (e) {
-        console.error("Audio error:", e);
-      }
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
     }
 
     function toggleAudio() {
       audioEnabled = !audioEnabled;
-      document.getElementById("audio-label").innerText = audioEnabled ? "AUDIO: ON" : "AUDIO: OFF";
+      document.getElementById('audio-label').innerText = audioEnabled ? "AUDIO: ON" : "AUDIO: OFF";
     }
 
-    // Gauge Updater
-    function updateThreatGauge(score) {
-      const arc = document.getElementById("gauge-arc");
-      const num = document.getElementById("gauge-number");
-      const badge = document.getElementById("threat-badge");
+    // Deck Switcher
+    function switchDeck(deck) {
+      const ops = document.getElementById('deck-ops');
+      const lab = document.getElementById('deck-lab');
+      const btnOps = document.getElementById('tab-btn-ops');
+      const btnLab = document.getElementById('tab-btn-lab');
 
-      num.innerText = score.toFixed(4);
-      // Circumference of semi-circle arc (r=80) is ~251.2
-      const maxLen = 251.2;
-      const offset = maxLen * (1.0 - Math.min(1.0, Math.max(0.0, score)));
-      arc.style.strokeDashoffset = offset;
-
-      if (score >= 0.85) {
-        arc.style.stroke = "#ff2a5f";
-        badge.className = "px-2 py-0.5 rounded text-xs font-mono font-bold bg-crimson/20 text-crimson border border-crimson/50";
-        badge.innerText = "CRITICAL THREAT";
-      } else if (score >= 0.5) {
-        arc.style.stroke = "#ffb703";
-        badge.className = "px-2 py-0.5 rounded text-xs font-mono font-bold bg-amber/20 text-amber border border-amber/50";
-        badge.innerText = "SUSPICIOUS";
+      if (deck === 'ops') {
+        ops.classList.remove('hidden');
+        lab.classList.add('hidden');
+        btnOps.className = "px-4 py-1.5 font-bold border-b-2 border-laserCyan text-laserCyan bg-laserCyan/5 transition";
+        btnLab.className = "px-4 py-1.5 font-bold border-b-2 border-transparent text-textMuted hover:text-white transition";
       } else {
-        arc.style.stroke = "#00ff9d";
-        badge.className = "px-2 py-0.5 rounded text-xs font-mono font-bold bg-emerald/10 text-emerald border border-emerald/30";
-        badge.innerText = "BASELINE NORMAL";
+        ops.classList.add('hidden');
+        lab.classList.remove('hidden');
+        btnLab.className = "px-4 py-1.5 font-bold border-b-2 border-matrixGreen text-matrixGreen bg-matrixGreen/5 transition";
+        btnOps.className = "px-4 py-1.5 font-bold border-b-2 border-transparent text-textMuted hover:text-white transition";
       }
     }
 
-    // Add packet row to waterfall
-    function addPacketRow(packet) {
-      packetCount++;
-      document.getElementById("stat-packets").innerText = packetCount;
-
-      const tbody = document.getElementById("packet-tbody");
-      const row = document.createElement("tr");
-      row.className = "hover:bg-surface/80 transition cursor-pointer border-b border-surfaceBorder/40";
-      row.onclick = () => showPacketDetails(packet);
-
-      let badgeClass = "text-emerald";
-      if (packet.score >= 0.85) {
-        badgeClass = "text-crimson font-bold bg-crimson/10 px-1.5 py-0.5 rounded";
-        threatCount++;
-        document.getElementById("stat-threats").innerText = threatCount;
-        triggerThreatAlert(packet);
-      } else if (packet.score >= 0.5) {
-        badgeClass = "text-amber font-semibold";
-      }
-
-      row.innerHTML = `
-        <td class="p-2 text-slate-400">${packet.time || new Date().toLocaleTimeString()}</td>
-        <td class="p-2 text-cyan">${packet.src}</td>
-        <td class="p-2 text-slate-300">${packet.dst}</td>
-        <td class="p-2 text-slate-400">${packet.proto || 'TCP'}</td>
-        <td class="p-2 text-slate-300 font-bold">${packet.flags || 'A'}</td>
-        <td class="p-2 ${badgeClass}">${packet.score.toFixed(4)}</td>
-      `;
-
-      tbody.insertBefore(row, tbody.firstChild);
-      if (tbody.children.length > 50) tbody.removeChild(tbody.lastChild);
-
-      updateThreatGauge(packet.score);
-    }
-
-    function triggerThreatAlert(packet) {
-      playThreatTone();
-      const banner = document.getElementById("demonic-alert-banner");
-      const ipText = document.getElementById("alert-attacker-ip");
-      ipText.innerText = `Attacker: ${packet.src} (Score: ${packet.score.toFixed(4)})`;
-      banner.classList.remove("hidden");
-
-      setTimeout(() => {
-        banner.classList.add("hidden");
-      }, 5000);
-    }
-
-    function clearPacketStream() {
-      document.getElementById("packet-tbody").innerHTML = "";
-    }
-
-    // Modal details for 20 features
-    function showPacketDetails(packet) {
-      const modal = document.getElementById("feature-modal");
-      const title = document.getElementById("modal-title");
-      const content = document.getElementById("modal-content");
-
-      title.innerText = `PACKET: ${packet.src} ➔ ${packet.dst}`;
-      content.innerHTML = "";
-
-      const feats = packet.features || {
-        "packet_len": 0.05, "protocol": 0.6, "src_port": 0.82, "dst_port": 0.001,
-        "is_syn": 1.0, "is_ack": 0.0, "is_fin_rst": 0.0, "payload_len": 0.0,
-        "tcp_window": 0.015, "ip_ttl": 0.188, "inter_arrival_time": 0.1, "stream_rate": 0.001,
-        "payload_entropy": 0.0, "is_null_scan": 0.0, "is_xmas_scan": 0.0, "is_syn_fin": 0.0,
-        "is_urgent": 0.0, "is_push": 0.0, "win_to_len_ratio": 1.0, "ttl_divergence": 0.25
-      };
-
-      for (const [k, v] of Object.entries(feats)) {
-        const item = document.createElement("div");
-        item.className = "p-2 bg-surface rounded border border-surfaceBorder flex justify-between";
-        item.innerHTML = `<span class="text-slate-400">${k}:</span><span class="text-cyan font-bold">${typeof v === 'number' ? v.toFixed(4) : v}</span>`;
-        content.appendChild(item);
-      }
-      modal.classList.remove("hidden");
-    }
-
-    function closeFeatureModal() {
-      document.getElementById("feature-modal").classList.add("hidden");
-    }
-
-    // Active Bans Manager & Live Countdown
-    function renderBans(banList) {
-      bans = banList;
-      const container = document.getElementById("ban-list-container");
-      const countLabel = document.getElementById("ban-count-label");
-      const countStat = document.getElementById("stat-bans");
-
-      const ips = Object.keys(bans);
-      countLabel.innerText = `${ips.length} IP(s) ISOLATED`;
-      countStat.innerText = ips.length;
-
-      if (ips.length === 0) {
-        container.innerHTML = `
-          <div class="p-4 rounded-lg bg-surface/60 border border-surfaceBorder text-slate-400 text-xs font-mono text-center col-span-2">
-            No active threat bans. Windows Firewall perimeter clean.
-          </div>`;
-        return;
-      }
-
-      container.innerHTML = "";
-      const now = Date.now() / 1000;
-
-      ips.forEach(ip => {
-        const remaining = Math.max(0, Math.floor(bans[ip] - now));
-        const mins = Math.floor(remaining / 60).toString().padStart(2, '0');
-        const secs = (remaining % 60).toString().padStart(2, '0');
-
-        const card = document.createElement("div");
-        card.className = "p-3 bg-surface/80 border border-crimson/40 rounded-lg flex items-center justify-between font-mono";
-        card.innerHTML = `
-          <div>
-            <div class="text-xs font-bold text-white flex items-center gap-1.5">
-              <span class="text-crimson">🛑</span> ${ip}
-            </div>
-            <div class="text-[11px] text-amber mt-0.5 font-semibold">
-              TTL: [${mins}:${secs}]
-            </div>
-          </div>
-          <button onclick="manualUnban('${ip}')" class="px-2 py-1 bg-surfaceCard hover:bg-surfaceBorder text-slate-300 hover:text-white border border-surfaceBorder rounded text-[10px] transition">
-            UNBAN
-          </button>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    async function manualUnban(ip) {
-      try {
-        await fetch(`/api/bans/unban/${ip}`, { method: "POST" });
-        delete bans[ip];
-        renderBans(bans);
-      } catch (e) {
-        console.error("Unban failed:", e);
-      }
-    }
-
-    // Add RFC 5961 Timeline Event
-    function addRfcEvent(event) {
-      const feed = document.getElementById("rfc-timeline-feed");
-      const item = document.createElement("div");
-      item.className = "p-2.5 rounded bg-surface border border-cyan/30 text-xs font-mono flex flex-col gap-1";
-      item.innerHTML = `
-        <div class="flex items-center justify-between font-bold text-cyan">
-          <span>⚡ ${event.type || 'TCP_STATE_TRANSITION'}</span>
-          <span class="text-slate-400 text-[10px]">${new Date().toLocaleTimeString()}</span>
-        </div>
-        <p class="text-slate-300 text-[11px]">${event.note || 'State updated'}</p>
-      `;
-      feed.insertBefore(item, feed.firstChild);
-      if (feed.children.length > 20) feed.removeChild(feed.lastChild);
-    }
-
-    // Neural Canvas Visualizer
-    function drawNeuralNetwork() {
-      const canvas = document.getElementById("neural-canvas");
-      if (!canvas) return;
-      const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const numInputs = 12;
-      const numOutputs = 1;
-      const inputX = 40;
-      const hiddenX = canvas.width / 2;
-      const outputX = canvas.width - 40;
-
-      // Draw connections
-      ctx.lineWidth = 1.2;
-      for (let i = 0; i < numInputs; i++) {
-        const inY = 20 + i * (canvas.height - 40) / (numInputs - 1);
-        const outY = canvas.height / 2;
-
-        const isPositive = (i % 2 === 0);
-        ctx.strokeStyle = isPositive ? "rgba(0, 240, 255, 0.25)" : "rgba(255, 42, 95, 0.25)";
-        ctx.beginPath();
-        ctx.moveTo(inputX, inY);
-        ctx.lineTo(outputX, outY);
-        ctx.stroke();
-      }
-
-      // Draw input nodes
-      for (let i = 0; i < numInputs; i++) {
-        const inY = 20 + i * (canvas.height - 40) / (numInputs - 1);
-        ctx.fillStyle = "#00f0ff";
-        ctx.beginPath();
-        ctx.arc(inputX, inY, 4, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // Draw output node
-      ctx.fillStyle = "#ff2a5f";
-      ctx.shadowColor = "#ff2a5f";
-      ctx.shadowBlur = 10;
-      ctx.beginPath();
-      ctx.arc(outputX, canvas.height / 2, 7, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    }
-
-    // Simulation triggers
-    async function triggerSimulatedAttack(type) {
-      try {
-        await fetch(`/api/simulate/${type}`, { method: "POST" });
-      } catch (e) {
-        console.error("Simulation error:", e);
-      }
-    }
-
-    // Live Sniffing Toggle
-    let isSniffing = false;
-    async function toggleSniffing() {
+    // Master Live Capture Toggle
+    let isLiveSniffing = false;
+    async function toggleLiveCapture() {
       try {
         const res = await fetch("/api/sniff/toggle", { method: "POST" });
         const data = await res.json();
-        updateSniffUI(data.running);
+        updateCaptureUI(data.running);
       } catch (e) {
-        console.error("Sniff toggle error:", e);
+        console.error("Capture toggle failed:", e);
       }
     }
 
-    function updateSniffUI(running) {
-      isSniffing = running;
-      const btn = document.getElementById("btn-sniff");
-      const dot = document.getElementById("sniff-dot");
-      const label = document.getElementById("sniff-label");
-      if (!btn || !dot || !label) return;
+    function updateCaptureUI(running) {
+      isLiveSniffing = running;
+      const btn = document.getElementById('master-capture-btn');
+      const text = document.getElementById('capture-status-text');
+      const radarCircle = document.getElementById('radar-circle');
+      const radarDot = document.getElementById('radar-indicator');
+
       if (running) {
-        btn.classList.add("border-cyberCyan/60", "bg-cyberCyan/15");
-        dot.className = "w-2 h-2 rounded-full bg-cyberCyan animate-pulse";
-        label.innerText = "LIVE CAPTURE: ON";
-        label.className = "text-cyberCyan font-bold";
+        text.innerText = "ACTIVE (SNIFFING NIC)";
+        text.className = "text-xs font-bold text-laserCyan";
+        btn.innerHTML = "<span>PAUSE LIVE SNIFF</span>";
+        btn.className = "ml-2 px-3 py-1 rounded text-xs font-bold font-mono tracking-wider transition flex items-center gap-2 bg-laserCyan/20 hover:bg-laserCyan/30 text-laserCyan border border-laserCyan/60 shadow-cyanGlow";
+        radarCircle.className = "w-6 h-6 rounded-full border border-laserCyan animate-ping";
+        radarDot.className = "w-2 h-2 rounded-full bg-laserCyan shadow-cyanGlow";
       } else {
-        btn.classList.remove("border-cyberCyan/60", "bg-cyberCyan/15");
-        dot.className = "w-2 h-2 rounded-full bg-slate-500";
-        label.innerText = "LIVE CAPTURE: OFF";
-        label.className = "text-slate-300";
+        text.innerText = "STANDBY (SIMULATION)";
+        text.className = "text-xs font-bold text-slate-400";
+        btn.innerHTML = "<span>ACTIVATE LIVE SNIFF</span>";
+        btn.className = "ml-2 px-3 py-1 rounded text-xs font-bold font-mono tracking-wider transition flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600";
+        radarCircle.className = "w-6 h-6 rounded-full border border-slate-700";
+        radarDot.className = "w-2 h-2 rounded-full bg-slate-500";
       }
     }
 
-    // Periodic Ban countdown tick
-    setInterval(() => {
-      renderBans(bans);
-    }, 1000);
+    // Trigger Simulated Attacks
+    async function triggerSimulatedAttack(type) {
+      try {
+        playTacticalChirp(type === 'clean' ? 600 : 1200, 'square', 0.1);
+        await fetch(`/api/simulate/${type}`, { method: "POST" });
+      } catch (e) {
+        console.error("Sim error:", e);
+      }
+    }
 
-    // Initial Data Fetch & SSE Stream Setup
-    async function initDashboard() {
-      drawNeuralNetwork();
+    // Manual Unban API
+    async function unbanIp(ip) {
+      try {
+        await fetch(`/api/bans/unban/${ip}`, { method: "POST" });
+      } catch (e) {
+        console.error("Unban error:", e);
+      }
+    }
+
+    // Trigger Evolution Burst
+    async function triggerEvolutionBurst() {
+      const btnLabel = document.getElementById('evolve-btn-label');
+      btnLabel.innerText = "EVOLVING POPULATION...";
+      try {
+        await fetch("/api/training/evolve", { method: "POST" });
+      } catch (e) {
+        console.error("Evolution trigger error:", e);
+      }
+    }
+
+    // ------------------------------------------------------------------
+    // LIVING NEAT GENOME TOPOLOGY ENGINE (ANIMATED CANVAS)
+    // ------------------------------------------------------------------
+    const canvas = document.getElementById('neat-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let genomeData = null;
+    let inputActivations = new Array(12).fill(0.0);
+
+    const SENSOR_LABELS = [
+      "LEN", "PROTO", "SPORT", "DPORT",
+      "SYN", "ACK", "FIN", "PAYLOAD",
+      "WIN", "TTL", "ΔT_IAT", "PPS_RATE"
+    ];
+
+    function resizeCanvas() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    async function loadGenomeTopology() {
+      try {
+        const res = await fetch("/api/genome");
+        genomeData = await res.json();
+      } catch (e) {}
+    }
+
+    function spawnSynapseImpulses(score) {
+      if (!canvas.width) return;
+      const numInputs = 12;
+      const inputX = 60;
+      const outputX = canvas.width - 60;
+      const outputY = canvas.height / 2;
+
+      for (let i = 0; i < numInputs; i++) {
+        const inY = 24 + i * (canvas.height - 48) / (numInputs - 1);
+        const act = inputActivations[i] || 0.1;
+        // Spawn particle if sensor is excited
+        if (act > 0.05 || Math.random() < 0.2) {
+          particles.push({
+            x: inputX,
+            y: inY,
+            startX: inputX,
+            startY: inY,
+            targetX: outputX,
+            targetY: outputY,
+            progress: 0,
+            speed: 0.03 + Math.random() * 0.03,
+            color: (score >= 0.85) ? '#ff003c' : '#00f0ff'
+          });
+        }
+      }
+    }
+
+    function renderNeuralCanvas() {
+      if (!canvas.width) resizeCanvas();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const numInputs = 12;
+      const inputX = 60;
+      const outputX = canvas.width - 60;
+      const outputY = canvas.height / 2;
+
+      // Draw Synaptic Connections
+      for (let i = 0; i < numInputs; i++) {
+        const inY = 24 + i * (canvas.height - 48) / (numInputs - 1);
+        const isPos = (i % 2 === 0);
+        ctx.strokeStyle = isPos ? "rgba(0, 240, 255, 0.15)" : "rgba(255, 0, 60, 0.15)";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(inputX, inY);
+        ctx.bezierCurveTo(inputX + 80, inY, outputX - 80, outputY, outputX, outputY);
+        ctx.stroke();
+      }
+
+      // Update & Draw Synapse Impulse Particles
+      for (let j = particles.length - 1; j >= 0; j--) {
+        const p = particles[j];
+        p.progress += p.speed;
+        if (p.progress >= 1.0) {
+          particles.splice(j, 1);
+          continue;
+        }
+        // Bezier interpolation
+        const t = p.progress;
+        const cx1 = p.startX + 80;
+        const cy1 = p.startY;
+        const cx2 = p.targetX - 80;
+        const cy2 = p.targetY;
+        
+        const px = Math.pow(1 - t, 3) * p.startX + 3 * Math.pow(1 - t, 2) * t * cx1 + 3 * (1 - t) * Math.pow(t, 2) * cx2 + Math.pow(t, 3) * p.targetX;
+        const py = Math.pow(1 - t, 3) * p.startY + 3 * Math.pow(1 - t, 2) * t * cy1 + 3 * (1 - t) * Math.pow(t, 2) * cy2 + Math.pow(t, 3) * p.targetY;
+
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      // Draw Sensor Input Nodes with Labels & Activity Bars
+      for (let i = 0; i < numInputs; i++) {
+        const inY = 24 + i * (canvas.height - 48) / (numInputs - 1);
+        const act = inputActivations[i] || 0.0;
+
+        // Node Glow
+        ctx.fillStyle = act > 0.5 ? "#00f0ff" : "#162032";
+        ctx.beginPath();
+        ctx.arc(inputX, inY, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Node Label
+        ctx.fillStyle = act > 0.5 ? "#ffffff" : "#6b7994";
+        ctx.font = "9px 'JetBrains Mono'";
+        ctx.textAlign = "right";
+        ctx.fillText(SENSOR_LABELS[i], inputX - 10, inY + 3);
+      }
+
+      // Draw Decision Core Output Node
+      const currentScore = parseFloat(document.getElementById('gauge-number').innerText) || 0.0;
+      const isThreat = currentScore >= 0.85;
+
+      ctx.fillStyle = isThreat ? "#ff003c" : "#00ff88";
+      ctx.shadowColor = isThreat ? "#ff003c" : "#00ff88";
+      ctx.shadowBlur = isThreat ? 20 : 8;
+      ctx.beginPath();
+      ctx.arc(outputX, outputY, isThreat ? 10 : 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Core Label
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "9px 'JetBrains Mono'";
+      ctx.textAlign = "left";
+      ctx.fillText("ANOMALY_CORE", outputX + 14, outputY + 3);
+
+      requestAnimationFrame(renderNeuralCanvas);
+    }
+
+    // ------------------------------------------------------------------
+    // TELEMETRY & ATTACK DOSSIER RENDERING
+    // ------------------------------------------------------------------
+    let activeBans = {};
+
+    function updateSpeedometer(score) {
+      const arc = document.getElementById('gauge-arc');
+      const num = document.getElementById('gauge-number');
+      const badge = document.getElementById('threat-badge');
+      const demonicBanner = document.getElementById('demonic-alert-banner');
+
+      num.innerText = score.toFixed(4);
+
+      // Dash offset: 235.6 is empty (0.0), 0 is full (1.0)
+      const offset = 235.6 - (score * 235.6);
+      arc.style.strokeDashoffset = offset;
+
+      if (score >= 0.85) {
+        arc.style.stroke = "#ff003c";
+        num.style.fill = "#ff003c";
+        badge.className = "px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-neonRed/20 text-neonRed border border-neonRed/50 animate-pulse";
+        badge.innerText = "CRITICAL THREAT DETECTED";
+        demonicBanner.classList.remove('hidden');
+        playTacticalChirp(1400, 'sawtooth', 0.25);
+      } else if (score >= 0.50) {
+        arc.style.stroke = "#ffb703";
+        num.style.fill = "#ffb703";
+        badge.className = "px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-warningAmber/20 text-warningAmber border border-warningAmber/50";
+        badge.innerText = "ELEVATED SUSPICION";
+        demonicBanner.classList.add('hidden');
+      } else {
+        arc.style.stroke = "#00ff88";
+        num.style.fill = "#ffffff";
+        badge.className = "px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-matrixGreen/15 text-matrixGreen border border-matrixGreen/40";
+        badge.innerText = "BASELINE NORMAL";
+        demonicBanner.classList.add('hidden');
+      }
+    }
+
+    function updateAttackerDossier(pkt) {
+      if (!pkt.intel) return;
+      const i = pkt.intel;
+      document.getElementById('dossier-ip').innerText = pkt.src;
+      document.getElementById('dossier-geo').innerText = `${i.flag} ${i.country}, ${i.city}`;
+      document.getElementById('dossier-asn').innerText = i.asn;
+      document.getElementById('dossier-actor').innerText = i.threat_actor;
+      document.getElementById('dossier-os').innerText = i.os_guess;
+      document.getElementById('dossier-target').innerText = i.target_service;
+      document.getElementById('dossier-seq').innerText = pkt.seq || '--';
+      document.getElementById('dossier-ack').innerText = pkt.ack || '--';
+      document.getElementById('dossier-win').innerText = pkt.window || '--';
+      document.getElementById('dossier-ttl').innerText = pkt.ttl || '--';
+
+      const hexEl = document.getElementById('dossier-hex');
+      if (pkt.hex_dump && pkt.hex_dump !== "None (Pure Control Frame)") {
+        hexEl.innerText = `${pkt.hex_dump}\n[ASCII]: ${pkt.ascii_dump}`;
+      } else {
+        hexEl.innerText = "-- Pure TCP Control Frame (Zero Payload) --";
+      }
+    }
+
+    function renderBans(bans) {
+      activeBans = bans || {};
+      const tbody = document.getElementById('bans-table-body');
+      const countEl = document.getElementById('active-bans-count');
+      const ips = Object.keys(activeBans);
+      countEl.innerText = `${ips.length} BANNED`;
+
+      if (ips.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-textMuted italic text-xs">No active host firewall blocks.</td></tr>`;
+        return;
+      }
+
+      const now = Date.now() / 1000;
+      let html = '';
+      for (const ip of ips) {
+        const item = activeBans[ip];
+        const expireTs = typeof item === 'object' ? item.expire_ts : item;
+        const flag = (typeof item === 'object' && item.flag) ? item.flag : '🚫';
+        const country = (typeof item === 'object' && item.country) ? item.country : 'Hostile WAN';
+        const remaining = Math.max(0, Math.floor(expireTs - now));
+        const mins = Math.floor(remaining / 60);
+        const secs = remaining % 60;
+        const timeStr = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+
+        html += `
+          <tr class="hover:bg-panelLight/50 transition">
+            <td class="p-2 font-bold text-laserCyan flex items-center gap-1.5">
+              <span>${flag}</span> <span>${ip}</span>
+            </td>
+            <td class="p-2 text-slate-300">${country}</td>
+            <td class="p-2 font-mono text-neonRed font-bold">${timeStr}</td>
+            <td class="p-2 text-right">
+              <button onclick="unbanIp('${ip}')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-neonRed text-white text-[10px] font-mono border border-slate-700 transition">
+                UNBAN
+              </button>
+            </td>
+          </tr>
+        `;
+      }
+      tbody.innerHTML = html;
+    }
+
+    function addPacketRow(pkt) {
+      const tbody = document.getElementById('packets-table-body');
+      if (tbody.querySelector('td[colspan]')) tbody.innerHTML = '';
+
+      const isThreat = pkt.score >= 0.85;
+      const scoreColor = isThreat ? 'text-neonRed font-bold' : (pkt.score >= 0.5 ? 'text-warningAmber' : 'text-matrixGreen');
+      const flag = pkt.intel ? pkt.intel.flag : '🌐';
+      const actor = pkt.intel ? pkt.intel.threat_actor : 'LAN';
+
+      const row = document.createElement('tr');
+      row.className = "hover:bg-panelLight cursor-pointer transition";
+      row.onclick = () => openFeatureDrawer(pkt);
+      row.innerHTML = `
+        <td class="p-2 text-textMuted">${pkt.time}</td>
+        <td class="p-2 font-bold text-laserCyan">${pkt.src}</td>
+        <td class="p-2 text-slate-300">${pkt.dst}</td>
+        <td class="p-2"><span class="px-1.5 py-0.5 rounded bg-void border border-panelBorder text-[10px] text-white">${pkt.flags}</span></td>
+        <td class="p-2 font-mono ${scoreColor}">${pkt.score.toFixed(4)}</td>
+        <td class="p-2 text-right text-[11px] text-slate-300">${flag} <span class="truncate max-w-[120px] inline-block align-bottom">${actor}</span></td>
+      `;
+
+      tbody.insertBefore(row, tbody.firstChild);
+      while (tbody.children.length > 25) {
+        tbody.removeChild(tbody.lastChild);
+      }
+
+      // Update HUD Gauges & Dossier
+      updateSpeedometer(pkt.score);
+      updateAttackerDossier(pkt);
+
+      // Update Input Sensors for Neural Topology
+      if (pkt.features) {
+        inputActivations = [
+          pkt.features.f_len || 0, pkt.features.f_proto || 0,
+          pkt.features.f_sport || 0, pkt.features.f_dport || 0,
+          pkt.features.f_syn || 0, pkt.features.f_ack || 0,
+          pkt.features.f_fin_rst || 0, pkt.features.f_payload || 0,
+          pkt.features.f_window || 0, pkt.features.f_ttl || 0,
+          pkt.features.f_delta_t || 0, pkt.features.f_rate || 0
+        ];
+        spawnSynapseImpulses(pkt.score);
+      }
+    }
+
+    function openFeatureDrawer(pkt) {
+      const drawer = document.getElementById('feature-drawer');
+      const label = document.getElementById('drawer-packet-label');
+      const grid = document.getElementById('drawer-features-grid');
+      drawer.classList.remove('hidden');
+
+      label.innerText = `SRC: ${pkt.src} | FLAGS: ${pkt.flags} | ANOMALY: ${pkt.score.toFixed(4)}`;
+      let html = '';
+      for (const [key, val] of Object.entries(pkt.features || {})) {
+        const isHighlight = (val > 0.5);
+        html += `
+          <div class="p-1.5 rounded bg-void border border-panelBorder flex justify-between">
+            <span class="text-textMuted">${key}:</span>
+            <span class="${isHighlight ? 'text-laserCyan font-bold' : 'text-slate-300'}">${typeof val === 'number' ? val.toFixed(3) : val}</span>
+          </div>
+        `;
+      }
+      grid.innerHTML = html;
+    }
+
+    // ------------------------------------------------------------------
+    // INITIALIZATION & SSE CONNECTION
+    // ------------------------------------------------------------------
+    async function initHUD() {
+      resizeCanvas();
+      renderNeuralCanvas();
+      await loadGenomeTopology();
+
+      // System clock
+      setInterval(() => {
+        const now = new Date();
+        document.getElementById('system-time').innerText = now.toTimeString().split(' ')[0];
+        renderBans(activeBans);
+      }, 1000);
+
+      // Initial status fetch
       try {
         const res = await fetch("/api/status");
         const data = await res.json();
-        document.getElementById("champion-fitness").innerText = `FITNESS: ${data.fitness ? data.fitness.toFixed(4) : '0.9980'}`;
+        document.getElementById('champ-fitness').innerText = data.fitness ? data.fitness.toFixed(4) : "0.9980";
         if (data.bans) renderBans(data.bans);
-        if (data.live_sniffing !== undefined) updateSniffUI(data.live_sniffing);
-      } catch (e) {
-        console.warn("Status fetch failed:", e);
-      }
+        if (data.live_sniffing !== undefined) updateCaptureUI(data.live_sniffing);
+      } catch (e) {}
 
-      // Connect SSE stream
+      // Connect SSE
       const evtSource = new EventSource("/api/stream");
       evtSource.onmessage = function(e) {
         try {
@@ -597,8 +1059,16 @@
             addPacketRow(msg.data);
           } else if (msg.type === "bans") {
             renderBans(msg.data);
-          } else if (msg.type === "rfc_event") {
-            addRfcEvent(msg.data);
+          } else if (msg.type === "velocity") {
+            document.getElementById('velocity-pps').innerText = msg.data.pps;
+            document.getElementById('velocity-kbps').innerText = msg.data.kbps.toFixed(1);
+            document.getElementById('total-packets-val').innerText = msg.data.total_packets;
+            document.getElementById('total-threats-val').innerText = msg.data.total_threats;
+          } else if (msg.type === "evolution_update") {
+            document.getElementById('champ-fitness').innerText = msg.data.fitness.toFixed(4);
+            document.getElementById('evolution-log').innerHTML = `<span class="text-matrixGreen font-bold">[EVOLUTION COMPLETE]:</span> ${msg.data.message}`;
+            document.getElementById('evolve-btn-label').innerText = "EVOLVE 5 GENERATIONS";
+            playTacticalChirp(880, 'sine', 0.3);
           }
         } catch (err) {
           console.error("SSE parse error:", err);
@@ -606,11 +1076,11 @@
       };
 
       evtSource.onerror = function() {
-        console.warn("SSE connection interrupted, retrying...");
+        console.warn("SSE stream interrupted, reconnecting...");
       };
     }
 
-    window.onload = initDashboard;
+    window.onload = initHUD;
   </script>
 </body>
 </html>
