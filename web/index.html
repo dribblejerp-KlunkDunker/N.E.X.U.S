@@ -1050,6 +1050,10 @@
         if (data.live_sniffing !== undefined) updateCaptureUI(data.live_sniffing);
       } catch (e) {}
 
+      // Fetch dynamic training stats for Deck 2
+      updateTrainingStats();
+      setInterval(updateTrainingStats, 5000);
+
       // Connect SSE
       const evtSource = new EventSource("/api/stream");
       evtSource.onmessage = function(e) {
@@ -1068,6 +1072,7 @@
             document.getElementById('champ-fitness').innerText = msg.data.fitness.toFixed(4);
             document.getElementById('evolution-log').innerHTML = `<span class="text-matrixGreen font-bold">[EVOLUTION COMPLETE]:</span> ${msg.data.message}`;
             document.getElementById('evolve-btn-label').innerText = "EVOLVE 5 GENERATIONS";
+            updateTrainingStats();
             playTacticalChirp(880, 'sine', 0.3);
           }
         } catch (err) {
@@ -1078,6 +1083,47 @@
       evtSource.onerror = function() {
         console.warn("SSE stream interrupted, reconnecting...");
       };
+    }
+
+    async function updateTrainingStats() {
+      try {
+        const res = await fetch("/api/training/stats");
+        const data = await res.json();
+        if (data.evolution_history && data.evolution_history.length > 0) {
+          renderFitnessChart(data.evolution_history);
+        }
+      } catch (e) {}
+    }
+
+    function renderFitnessChart(history) {
+      if (!history || history.length === 0) return;
+      const bestLine = document.getElementById('chart-line-best');
+      const avgLine = document.getElementById('chart-line-avg');
+      if (!bestLine || !avgLine) return;
+
+      const minX = 50, maxX = 460;
+      const minY = 180, maxY = 20;
+
+      const n = history.length;
+      let bestPath = '';
+      let avgPath = '';
+
+      history.forEach((pt, i) => {
+        const x = n === 1 ? minX : minX + (i / (n - 1)) * (maxX - minX);
+        const yBest = minY - (pt.best_fitness * (minY - maxY));
+        const yAvg = minY - (pt.avg_fitness * (minY - maxY));
+
+        if (i === 0) {
+          bestPath = `M ${x} ${yBest}`;
+          avgPath = `M ${x} ${yAvg}`;
+        } else {
+          bestPath += ` L ${x} ${yBest}`;
+          avgPath += ` L ${x} ${yAvg}`;
+        }
+      });
+
+      bestLine.setAttribute('d', bestPath);
+      avgLine.setAttribute('d', avgPath);
     }
 
     window.onload = initHUD;

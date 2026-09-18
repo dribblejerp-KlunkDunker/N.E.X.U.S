@@ -1,0 +1,51 @@
+{
+  "evolution_history": [
+    {
+      "generation": 0,
+      "best_fitness": 0.5548,
+      "avg_fitness": 0.0724,
+      "nodes": 1,
+      "connections": 12
+    },
+    {
+      "generation": 1,
+      "best_fitness": 0.6436,
+      "avg_fitness": 0.2099,
+      "nodes": 1,
+      "connections": 12
+    },
+    {
+      "generation": 2,
+      "best_fitness": 0.6929,
+      "avg_fitness": 0.2843,
+      "nodes": 2,
+      "connections": 13
+    },
+    {
+      "generation": 3,
+      "best_fitness": 0.7527,
+      "avg_fitness": 0.302,
+      "nodes": 2,
+      "connections": 13
+    },
+    {
+      "generation": 4,
+      "best_fitness": 0.7613,
+      "avg_fitness": 0.3289,
+      "nodes": 2,
+      "connections": 12
+    }
+  ],
+  "ray_benchmark": {
+    "evals_per_sec": 2330.3,
+    "cores_active": 16,
+    "cluster_nodes": 1,
+    "speedup_factor": "8.3x Linear"
+  },
+  "population": {
+    "size": 100,
+    "species_count": 1,
+    "mutation_rate": 0.8,
+    "selection_elitism": 2
+  }
+}

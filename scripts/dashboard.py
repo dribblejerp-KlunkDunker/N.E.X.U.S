@@ -533,6 +533,14 @@ async def get_genome():
 @app.get("/api/training/stats")
 async def get_training_stats():
     """Returns evolutionary generation trajectory, Ray speeds, and LSTM forecaster specs."""
+    history_file = "logs/training_history.json"
+    if os.path.exists(history_file):
+        try:
+            with open(history_file, "r") as f:
+                return json.load(f)
+        except Exception:
+            pass
+
     return {
         "evolution_history": [
             {"generation": 0, "best_fitness": 0.7420, "avg_fitness": 0.4120, "nodes": 13, "connections": 12},
