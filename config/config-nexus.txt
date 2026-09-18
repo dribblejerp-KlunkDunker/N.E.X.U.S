@@ -12,8 +12,8 @@ no_fitness_termination = False
 
 [DefaultGenome]
 # Network Topology
-# 12 extracted packet features
-num_inputs             = 12
+# 20 extracted packet features (including Shannon entropy and scan flags)
+num_inputs             = 20
 # anomaly score [0.0 - 1.0]
 num_outputs            = 1
 num_hidden             = 0

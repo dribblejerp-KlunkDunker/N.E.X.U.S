@@ -310,9 +310,11 @@ def process_packet(pkt):
     feats_20 = EXTRACTOR.extract(pkt, extended=True)
     feats_12 = feats_20[:12]
 
-    # 2. Neural anomaly scoring
+    # 2. Neural anomaly scoring (dynamically supports 20-D or 12-D champions)
     if NET:
-        score = float(NET.activate(feats_12)[0])
+        num_in = len(CONFIG.genome_config.input_keys) if CONFIG else 20
+        inp = feats_20 if num_in == 20 else feats_12
+        score = float(NET.activate(inp)[0])
     else:
         score = 0.0
 
@@ -488,14 +490,10 @@ async def get_genome():
             data = pickle.load(f)
         genome = data["genome"]
         
-        # Sensor input names
-        input_names = [
-            "f_len", "f_proto", "f_sport", "f_dport",
-            "f_syn", "f_ack", "f_fin_rst", "f_payload",
-            "f_window", "f_ttl", "f_delta_t", "f_rate"
-        ]
-
-        inputs = [{"id": -(i + 1), "name": input_names[i], "type": "input"} for i in range(12)]
+        # Sensor input names (20 dimensions)
+        input_names = FEATURE_NAMES_20
+        num_inputs = len(data["config"].genome_config.input_keys) if "config" in data else len(input_names)
+        inputs = [{"id": -(i + 1), "name": input_names[i] if i < len(input_names) else f"in_{i}", "type": "input"} for i in range(num_inputs)]
         outputs = [{"id": 0, "name": "THREAT_DECISION", "type": "output", "bias": genome.nodes[0].bias}]
         
         hidden = []

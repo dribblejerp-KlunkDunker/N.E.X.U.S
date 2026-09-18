@@ -179,7 +179,7 @@ def prepare_train_validation_sets(base_dir: str = "."):
             pkts = rdpcap(pcap)
             for p in pkts:
                 f20 = extractor.extract(p, extended=True)
-                norm_feats.append(f20[:12])
+                norm_feats.append(f20)
         except Exception:
             pass
 
@@ -189,7 +189,7 @@ def prepare_train_validation_sets(base_dir: str = "."):
             pkts = rdpcap(pcap)
             for p in pkts:
                 f20 = extractor.extract(p, extended=True)
-                atk_feats.append(f20[:12])
+                atk_feats.append(f20)
         except Exception:
             pass
 

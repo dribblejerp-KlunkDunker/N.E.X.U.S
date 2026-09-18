@@ -308,7 +308,9 @@ class NexusGuardian:
                     self.logger.info(f"[FORENSIC EVIDENCE] Preserved flow timeline artifact: {ev_file}")
 
         # 3. Detection Plane: NEAT Anomaly Scoring
-        feats = self.extractor.extract(pkt)
+        feats_20 = self.extractor.extract(pkt, extended=True)
+        num_in = len(self.config.genome_config.input_keys) if hasattr(self, 'config') and self.config else 20
+        feats = feats_20 if num_in == 20 else feats_20[:12]
         anomaly_score = float(self.net.activate(feats)[0])
 
         if anomaly_score >= self.threshold:

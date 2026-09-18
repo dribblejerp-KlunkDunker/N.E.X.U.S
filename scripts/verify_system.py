@@ -67,7 +67,18 @@ def run_diagnostics():
     config_path = "config/config-nexus.txt"
     has_config = os.path.exists(config_path)
     print_check("NEAT Config File", has_config, config_path)
-    if not has_config:
+    if has_config:
+        try:
+            import neat
+            cfg = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_path)
+            num_inputs = len(cfg.genome_config.input_keys)
+            print_check("NEAT Input Dimension (20-D)", num_inputs == 20, f"num_inputs = {num_inputs}")
+            if num_inputs != 20:
+                all_passed = False
+        except Exception as e:
+            print_check("NEAT Config Parsing", False, str(e))
+            all_passed = False
+    else:
         all_passed = False
 
     champion_path = "genomes/champion.pkl"

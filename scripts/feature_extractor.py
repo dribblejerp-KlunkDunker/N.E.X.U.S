@@ -38,8 +38,8 @@ FEATURE_NAMES_20 = FEATURE_NAMES_12 + [
     "ttl_divergence",      # 19: Absolute divergence from standard baseline (64)
 ]
 
-FEATURE_NAMES = FEATURE_NAMES_12
-NUM_FEATURES = len(FEATURE_NAMES)
+FEATURE_NAMES = FEATURE_NAMES_20
+NUM_FEATURES = len(FEATURE_NAMES_20)
 
 
 def calculate_shannon_entropy(payload_bytes: bytes) -> float:
@@ -185,7 +185,7 @@ class PacketFeatureExtractor:
         return self.extract(packet, current_time=current_time, extended=True)
 
 
-def extract_from_pcap(pcap_file: str, extended: bool = False) -> np.ndarray:
+def extract_from_pcap(pcap_file: str, extended: bool = True) -> np.ndarray:
     """Reads a PCAP file and returns an (N, D) numpy matrix."""
     if not os.path.exists(pcap_file):
         raise FileNotFoundError(f"PCAP file not found: {pcap_file}")

@@ -724,12 +724,14 @@
     const ctx = canvas.getContext('2d');
     let particles = [];
     let genomeData = null;
-    let inputActivations = new Array(12).fill(0.0);
+    let inputActivations = new Array(20).fill(0.0);
 
     const SENSOR_LABELS = [
       "LEN", "PROTO", "SPORT", "DPORT",
-      "SYN", "ACK", "FIN", "PAYLOAD",
-      "WIN", "TTL", "ΔT_IAT", "PPS_RATE"
+      "SYN", "ACK", "FIN_RST", "PAYLOAD",
+      "WIN", "TTL", "ΔT_IAT", "PPS_RATE",
+      "ENTROPY", "NULL_SCAN", "XMAS_SCAN", "SYN_FIN",
+      "URG", "PSH", "WIN_RATIO", "TTL_DIV"
     ];
 
     function resizeCanvas() {
@@ -747,7 +749,7 @@
 
     function spawnSynapseImpulses(score) {
       if (!canvas.width) return;
-      const numInputs = 12;
+      const numInputs = SENSOR_LABELS.length;
       const inputX = 60;
       const outputX = canvas.width - 60;
       const outputY = canvas.height / 2;
@@ -776,7 +778,7 @@
       if (!canvas.width) resizeCanvas();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const numInputs = 12;
+      const numInputs = SENSOR_LABELS.length;
       const inputX = 60;
       const outputX = canvas.width - 60;
       const outputY = canvas.height / 2;
@@ -994,14 +996,7 @@
 
       // Update Input Sensors for Neural Topology
       if (pkt.features) {
-        inputActivations = [
-          pkt.features.f_len || 0, pkt.features.f_proto || 0,
-          pkt.features.f_sport || 0, pkt.features.f_dport || 0,
-          pkt.features.f_syn || 0, pkt.features.f_ack || 0,
-          pkt.features.f_fin_rst || 0, pkt.features.f_payload || 0,
-          pkt.features.f_window || 0, pkt.features.f_ttl || 0,
-          pkt.features.f_delta_t || 0, pkt.features.f_rate || 0
-        ];
+        inputActivations = Object.values(pkt.features);
         spawnSynapseImpulses(pkt.score);
       }
     }
