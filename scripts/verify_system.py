@@ -73,7 +73,8 @@ def run_diagnostics():
             cfg = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_path)
             num_inputs = len(cfg.genome_config.input_keys)
             print_check("NEAT Input Dimension (20-D)", num_inputs == 20, f"num_inputs = {num_inputs}")
-            if num_inputs != 20:
+            print_check("NEAT Population Size (150)", cfg.pop_size == 150, f"pop_size = {cfg.pop_size}")
+            if num_inputs != 20 or cfg.pop_size != 150:
                 all_passed = False
         except Exception as e:
             print_check("NEAT Config Parsing", False, str(e))
