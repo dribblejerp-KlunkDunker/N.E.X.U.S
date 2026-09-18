@@ -91,6 +91,9 @@
 
       <!-- Actions Toolbar -->
       <div class="flex items-center gap-2">
+        <button id="btn-sniff" onclick="toggleSniffing()" class="px-3 py-1.5 rounded text-xs font-mono bg-surfaceCard hover:bg-surfaceBorder border border-surfaceBorder text-slate-300 transition flex items-center gap-1.5">
+          <span id="sniff-dot" class="w-2 h-2 rounded-full bg-slate-500"></span> <span id="sniff-label">LIVE CAPTURE: OFF</span>
+        </button>
         <button id="btn-audio" onclick="toggleAudio()" class="px-3 py-1.5 rounded text-xs font-mono bg-surfaceCard hover:bg-surfaceBorder border border-surfaceBorder text-slate-300 transition flex items-center gap-1.5">
           <span>🔊</span> <span id="audio-label">AUDIO: ON</span>
         </button>
@@ -536,6 +539,37 @@
       }
     }
 
+    // Live Sniffing Toggle
+    let isSniffing = false;
+    async function toggleSniffing() {
+      try {
+        const res = await fetch("/api/sniff/toggle", { method: "POST" });
+        const data = await res.json();
+        updateSniffUI(data.running);
+      } catch (e) {
+        console.error("Sniff toggle error:", e);
+      }
+    }
+
+    function updateSniffUI(running) {
+      isSniffing = running;
+      const btn = document.getElementById("btn-sniff");
+      const dot = document.getElementById("sniff-dot");
+      const label = document.getElementById("sniff-label");
+      if (!btn || !dot || !label) return;
+      if (running) {
+        btn.classList.add("border-cyberCyan/60", "bg-cyberCyan/15");
+        dot.className = "w-2 h-2 rounded-full bg-cyberCyan animate-pulse";
+        label.innerText = "LIVE CAPTURE: ON";
+        label.className = "text-cyberCyan font-bold";
+      } else {
+        btn.classList.remove("border-cyberCyan/60", "bg-cyberCyan/15");
+        dot.className = "w-2 h-2 rounded-full bg-slate-500";
+        label.innerText = "LIVE CAPTURE: OFF";
+        label.className = "text-slate-300";
+      }
+    }
+
     // Periodic Ban countdown tick
     setInterval(() => {
       renderBans(bans);
@@ -549,6 +583,7 @@
         const data = await res.json();
         document.getElementById("champion-fitness").innerText = `FITNESS: ${data.fitness ? data.fitness.toFixed(4) : '0.9980'}`;
         if (data.bans) renderBans(data.bans);
+        if (data.live_sniffing !== undefined) updateSniffUI(data.live_sniffing);
       } catch (e) {
         console.warn("Status fetch failed:", e);
       }
