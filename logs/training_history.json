@@ -2,24 +2,17 @@
   "evolution_history": [
     {
       "generation": 0,
-      "best_fitness": 0.5173,
-      "avg_fitness": 0.0555,
+      "best_fitness": 0.4484,
+      "avg_fitness": 0.065,
       "nodes": 1,
       "connections": 20
     },
     {
       "generation": 1,
-      "best_fitness": 0.6594,
-      "avg_fitness": 0.1156,
+      "best_fitness": 0.5416,
+      "avg_fitness": 0.1192,
       "nodes": 1,
-      "connections": 19
-    },
-    {
-      "generation": 2,
-      "best_fitness": 0.6594,
-      "avg_fitness": 0.1664,
-      "nodes": 1,
-      "connections": 19
+      "connections": 20
     }
   ],
   "ray_benchmark": {

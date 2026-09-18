@@ -98,6 +98,17 @@ TRACKER = PassiveTcpFlowTracker(timeout_seconds=120.0, history_size=8)
 # THREAT INTEL & OS FINGERPRINTING ENGINE
 # --------------------------------------------------------------------
 GEO_CACHE = {}
+THREAT_INTEL_CACHE = {}
+THREAT_INTEL_FILE = "data/threat_intel_cache.json"
+
+if os.path.exists(THREAT_INTEL_FILE):
+    try:
+        with open(THREAT_INTEL_FILE, "r", encoding="utf-8") as f:
+            ti_data = json.load(f)
+            THREAT_INTEL_CACHE = ti_data.get("ips", {})
+        print(f"[NEXUS Threat Intel] Loaded {len(THREAT_INTEL_CACHE)} verified C2/botnet indicators from {THREAT_INTEL_FILE}")
+    except Exception as e:
+        print(f"[NEXUS Threat Intel] Error loading threat cache: {e}")
 
 SIMULATED_THREAT_ACTORS = [
     {
@@ -225,7 +236,82 @@ def resolve_ip_intel(ip: str, ttl: int = 64, window: int = 1024, dport: int = 80
         8080: "HTTP Alternate / Web Management (Mirai IoT Vector)"
     }
     intel["target_service"] = service_map.get(dport, f"TCP Port {dport}")
+
+    # Check against verified ThreatFox / Abuse.ch C2 Intelligence
+    c2_match = THREAT_INTEL_CACHE.get(ip)
+    if c2_match:
+        intel["c2_match"] = True
+        intel["threat_actor"] = f"{c2_match['malware']} ({c2_match['threat_type']})"
+        intel["malware_family"] = c2_match["malware"]
+        intel["confidence"] = c2_match.get("confidence_level", 95)
+        intel["mitre"] = {
+            "id": c2_match["mitre_id"],
+            "name": c2_match["mitre_name"],
+            "url": f"https://attack.mitre.org/techniques/{c2_match['mitre_id'].replace('.', '/')}/"
+        }
+        intel["risk"] = "CRITICAL"
+
     return intel
+
+
+def classify_mitre_technique(dport: int, flags: str, entropy: float, score: float, intel: dict, raw_payload: bytes = b"") -> dict:
+    """Classifies anomalous packet behavior into MITRE ATT&CK Enterprise Matrix techniques."""
+    if intel.get("mitre"):
+        return intel["mitre"]
+
+    if dport in (3333, 4444, 5555, 7777) or b"mining." in raw_payload:
+        return {
+            "id": "T1496",
+            "name": "Resource Hijacking: Stratum Cryptomining",
+            "url": "https://attack.mitre.org/techniques/T1496/"
+        }
+    if flags in ("FPU", "F", "SF", "") or flags == "0":
+        return {
+            "id": "T1046",
+            "name": "Network Service Discovery: Stealth TCP Scan",
+            "url": "https://attack.mitre.org/techniques/T1046/"
+        }
+    if dport in (445, 139):
+        return {
+            "id": "T1021.002",
+            "name": "Remote Services: SMB/Windows Admin Shares",
+            "url": "https://attack.mitre.org/techniques/T1021/002/"
+        }
+    if dport in (22, 3389):
+        return {
+            "id": "T1110.001",
+            "name": "Brute Force: Password Guessing (SSH/RDP)",
+            "url": "https://attack.mitre.org/techniques/T1110/001/"
+        }
+    if entropy >= 0.85 and len(raw_payload) >= 800:
+        return {
+            "id": "T1048.003",
+            "name": "Exfiltration Over Alternative Protocol (Encrypted)",
+            "url": "https://attack.mitre.org/techniques/T1048/003/"
+        }
+    if dport in (8443, 8000, 4444, 8888, 9001) and entropy >= 0.80:
+        return {
+            "id": "T1071.001",
+            "name": "Command and Control: Web Protocols (Malleable C2 Beacon)",
+            "url": "https://attack.mitre.org/techniques/T1071/001/"
+        }
+    if raw_payload.startswith(b"MZ") or raw_payload.startswith(b"\x7fELF"):
+        return {
+            "id": "T1105",
+            "name": "Ingress Tool Transfer: Executable Dropper / Stager",
+            "url": "https://attack.mitre.org/techniques/T1105/"
+        }
+    if "S" in flags and score >= 0.80:
+        return {
+            "id": "T1498.001",
+            "name": "Network Denial of Service: Direct Network Flood",
+            "url": "https://attack.mitre.org/techniques/T1498/001/"
+        }
+    return {
+        "id": "T1046",
+        "name": "Network Service Discovery",
+        "url": "https://attack.mitre.org/techniques/T1046/"
+    }
 
 
 # --------------------------------------------------------------------
@@ -321,8 +407,10 @@ def process_packet(pkt):
     SHARED_STATE["packets_evaluated"] += 1
     SHARED_STATE["last_score"] = score
 
-    # 3. Attacker intelligence enrichment
+    # 3. Attacker intelligence enrichment & MITRE ATT&CK Mapping
     intel = resolve_ip_intel(src_ip, ttl=ttl, window=window, dport=dport)
+    mitre = classify_mitre_technique(dport, flags_str, feats_20[12], score, intel, raw_payload)
+    intel["mitre"] = mitre
 
     # 4. Policy Enforcement upon Threat Detection
     if score >= 0.85 and src_ip not in {"127.0.0.1", "::1", "0.0.0.0"}:
@@ -335,7 +423,10 @@ def process_packet(pkt):
             "asn": intel["asn"],
             "os": intel["os_guess"],
             "target": intel["target_service"],
-            "score": score
+            "score": score,
+            "mitre": mitre,
+            "c2_match": intel.get("c2_match", False),
+            "malware_family": intel.get("malware_family", "")
         }
 
         if SHARED_STATE["active_defense"] and sys.platform == "win32":
@@ -677,6 +768,30 @@ async def simulate_attack(attack_type: str):
         pkt = Ether()/IP(src=src_ip, dst="192.168.1.50", ttl=52)/\
               TCP(sport=random.randint(30000, 50000), dport=22, flags="S", seq=random.randint(1000, 5000), window=14600)/\
               Raw(load=b"SSH-2.0-OpenSSH_8.2p1 Ubuntu-4ubuntu0.5\r\n")
+    elif attack_type == "c2beacon":
+        # Active Cobalt Strike / Sliver C2 Beacon Pulse
+        src_ip = "185.220.101.5"
+        pkt = Ether()/IP(src=src_ip, dst="192.168.1.50", ttl=48)/\
+              TCP(sport=random.randint(32768, 65535), dport=8443, flags="PA", window=2048)/\
+              Raw(load=os.urandom(96))
+    elif attack_type == "exfil":
+        # Infostealer / Ransomware Double-Extortion Outbound Exfiltration
+        dst_ip = "91.240.118.172"
+        pkt = Ether()/IP(src="192.168.1.50", dst=dst_ip, ttl=64)/\
+              TCP(sport=random.randint(40000, 60000), dport=14432, flags="PA", window=64240)/\
+              Raw(load=os.urandom(1420))
+    elif attack_type == "stratum":
+        # Cryptomining Stratum JSON-RPC submit
+        dst_ip = "193.142.59.83"
+        stratum_rpc = b'{"id":1,"jsonrpc":"2.0","method":"mining.submit","params":["xmr_worker1","0x99a1","0xcafe1234"]}\n'
+        pkt = Ether()/IP(src="192.168.1.50", dst=dst_ip, ttl=64)/\
+              TCP(sport=random.randint(45000, 65000), dport=3333, flags="PA", window=29200)/\
+              Raw(load=stratum_rpc)
+    elif attack_type == "worm":
+        # Worm Lateral Movement Sweep (SMB 445 EternalBlue)
+        src_ip = "198.51.100.48"
+        pkt = Ether()/IP(src=src_ip, dst="192.168.1.50", ttl=32)/\
+              TCP(sport=random.randint(1024, 65535), dport=445, flags="S", window=8192)
     else:
         # Clean baseline web browsing session
         src_ip = "192.168.1.50"

@@ -99,21 +99,33 @@ def build_comprehensive_corpus(base_dir: str = ".", live_capture_count: int = 15
         pkt = Ether()/IP(src=src, dst=dst, ttl=ttl)/TCP(sport=sport, dport=dport, flags=flags, window=win)/Raw(load=load)
         normal_pkts.append(pkt)
 
-    # C. Generate Multi-Class Attack Vectors
-    print("[NEXUS Corpus] Generating 6 weaponized threat classes (SYN floods, stealth scans, exploits)...")
-    attacker_subnets = [f"185.220.{random.randint(10, 250)}.{random.randint(1, 254)}" for _ in range(50)]
+    # C. Generate Multi-Class Attack Vectors across 10 Real-World Threat Archetypes
+    print("[NEXUS Corpus] Generating 10 weaponized threat classes (SYN floods, stealth scans, C2, exfil, mining)...")
+    
+    # Load real verified C2 IPs from threat intel cache if available
+    threat_intel_file = os.path.join(base_dir, "data", "threat_intel_cache.json")
+    real_c2_ips = []
+    if os.path.exists(threat_intel_file):
+        try:
+            with open(threat_intel_file, "r", encoding="utf-8") as f:
+                ti_data = json.load(f)
+            real_c2_ips = list(ti_data.get("ips", {}).keys())
+        except Exception:
+            pass
+
+    attacker_subnets = real_c2_ips if real_c2_ips else [f"185.220.{random.randint(10, 250)}.{random.randint(1, 254)}" for _ in range(50)]
     target_host = "192.168.1.50"
 
-    # Class 1: Volumetric High-Rate SYN Floods
-    for _ in range(1200):
+    # Class 1: Volumetric High-Rate SYN Floods (Botnets / Mirai / Gafgyt)
+    for _ in range(1000):
         src = random.choice(attacker_subnets)
         dport = random.choice([80, 443, 22, 3389, 445])
         pkt = Ether()/IP(src=src, dst=target_host, ttl=random.choice([32, 48, 54]))/\
               TCP(sport=random.randint(1024, 65535), dport=dport, flags="S", window=1024, seq=random.randint(1000, 99999), ack=0)
         attack_pkts.append(pkt)
 
-    # Class 2: Stealth Scans (XMAS, NULL, FIN, SYN+FIN)
-    for _ in range(600):
+    # Class 2: Stealth Reconnaissance Scans (NULL, XMAS, FIN, SYN+FIN via Nmap/ZMap)
+    for _ in range(500):
         src = random.choice(attacker_subnets)
         scan_flags = random.choice(["FPU", 0, "F", "SF"])
         pkt = Ether()/IP(src=src, dst=target_host, ttl=random.choice([40, 50]))/\
@@ -121,17 +133,16 @@ def build_comprehensive_corpus(base_dir: str = ".", live_capture_count: int = 15
         attack_pkts.append(pkt)
 
     # Class 3: High-Entropy Exploit Payloads (Buffer Overflows, Web Shells)
-    for _ in range(600):
+    for _ in range(500):
         src = random.choice(attacker_subnets)
-        # High Shannon entropy randomized exploit shellcode
         exploit_load = bytes([random.randint(0, 255) for _ in range(random.randint(128, 800))])
         pkt = Ether()/IP(src=src, dst=target_host, ttl=64)/\
               TCP(sport=random.randint(20000, 60000), dport=random.choice([80, 8080, 445]), flags="PA", window=1024)/\
               Raw(load=exploit_load)
         attack_pkts.append(pkt)
 
-    # Class 4: Brute-Force Connection Bursts (SSH & RDP)
-    for _ in range(500):
+    # Class 4: Credential Brute-Force Connection Bursts (SSH & RDP Sprayers)
+    for _ in range(400):
         src = random.choice(attacker_subnets)
         pkt = Ether()/IP(src=src, dst=target_host, ttl=52)/\
               TCP(sport=random.randint(30000, 50000), dport=random.choice([22, 3389]), flags="S", window=14600)/\
@@ -139,10 +150,64 @@ def build_comprehensive_corpus(base_dir: str = ".", live_capture_count: int = 15
         attack_pkts.append(pkt)
 
     # Class 5: Out-of-Window RFC 5961 RST Injection attempts
-    for _ in range(300):
+    for _ in range(250):
         src = random.choice(attacker_subnets)
         pkt = Ether()/IP(src=src, dst=target_host, ttl=64)/\
               TCP(sport=random.randint(1024, 65535), dport=random.choice([80, 443]), flags="R", seq=99999999, window=0)
+        attack_pkts.append(pkt)
+
+    # Class 6: RAT / C2 Heartbeat Beacons (Cobalt Strike, Sliver, Meterpreter)
+    for _ in range(450):
+        src = random.choice(attacker_subnets)
+        dport = random.choice([8443, 8000, 4444, 8888, 9001])
+        c2_payload = bytes([random.randint(0, 255) for _ in range(random.randint(48, 128))])
+        pkt = Ether()/IP(src=src, dst=target_host, ttl=random.choice([48, 54, 64]))/\
+              TCP(sport=random.randint(32768, 65535), dport=dport, flags="PA", window=random.choice([1024, 2048, 4096]))/\
+              Raw(load=c2_payload)
+        attack_pkts.append(pkt)
+
+    # Class 7: Infostealer & Ransomware Exfiltration (RedLine, Lumma, LockBit)
+    for _ in range(500):
+        dst = random.choice(attacker_subnets)
+        dport = random.choice([443, 8080, 14432, 2083])
+        exfil_data = bytes([random.randint(0, 255) for _ in range(random.randint(1300, 1460))])
+        pkt = Ether()/IP(src=target_host, dst=dst, ttl=64)/\
+              TCP(sport=random.randint(40000, 65000), dport=dport, flags="PA", window=64240)/\
+              Raw(load=exfil_data)
+        attack_pkts.append(pkt)
+
+    # Class 8: Cryptomining Stratum Protocol (XMRig, WannaMine)
+    stratum_payloads = [
+        b'{"id":1,"jsonrpc":"2.0","method":"mining.submit","params":["miner1","0x1a2b","0xabcd1234"]}\n',
+        b'{"id":2,"jsonrpc":"2.0","method":"mining.subscribe","params":["XMRig/6.18.0",null]}\n',
+        b'{"id":3,"jsonrpc":"2.0","method":"mining.authorize","params":["wallet_addr.worker1","x"]}\n'
+    ]
+    for _ in range(350):
+        dst = random.choice(attacker_subnets)
+        dport = random.choice([3333, 4444, 5555, 7777])
+        pkt = Ether()/IP(src=target_host, dst=dst, ttl=64)/\
+              TCP(sport=random.randint(45000, 65000), dport=dport, flags="PA", window=29200)/\
+              Raw(load=random.choice(stratum_payloads))
+        attack_pkts.append(pkt)
+
+    # Class 9: Worms & Aggressive Lateral Movement (WannaCry, NotPetya, Conficker)
+    for _ in range(450):
+        src = random.choice(attacker_subnets)
+        dport = random.choice([445, 3389, 139])
+        pkt = Ether()/IP(src=src, dst=target_host, ttl=random.choice([32, 64]))/\
+              TCP(sport=random.randint(1024, 65535), dport=dport, flags="S", window=random.choice([8192, 16384]), seq=random.randint(100, 50000))
+        attack_pkts.append(pkt)
+
+    # Class 10: Ingress Tool Transfer / Dropper Staging (Payload Downloaders)
+    pe_header = b"MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00This program cannot be run in DOS mode."
+    elf_header = b"\x7fELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x3e\x00"
+    for _ in range(350):
+        src = random.choice(attacker_subnets)
+        magic = random.choice([pe_header, elf_header])
+        dropper_body = magic + bytes([random.randint(0, 255) for _ in range(random.randint(500, 1200))])
+        pkt = Ether()/IP(src=src, dst=target_host, ttl=random.choice([48, 54]))/\
+              TCP(sport=random.choice([80, 8080, 8000]), dport=random.randint(40000, 65000), flags="PA", window=65535)/\
+              Raw(load=dropper_body)
         attack_pkts.append(pkt)
 
     # Write PCAPs

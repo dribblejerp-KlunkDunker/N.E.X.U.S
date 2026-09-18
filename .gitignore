@@ -4,4 +4,5 @@ __pycache__/
 logs/neat-checkpoint-*
 logs/test_evidence/
 data/*.db
-data/*.pcap
+*.pcap
+**/*.pcap
