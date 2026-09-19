@@ -39,10 +39,26 @@ from passive_flow_tracker import PassiveTcpFlowTracker
 # --------------------------------------------------------------------
 # LIFESPAN & APPLICATION SETUP
 # --------------------------------------------------------------------
+def _silence_win_proactor_errors(loop, context):
+    exception = context.get("exception")
+    if isinstance(exception, OSError):
+        winerror = getattr(exception, "winerror", None)
+        if winerror in (64, 121, 10054):
+            return
+    if isinstance(exception, (ConnectionResetError, BrokenPipeError)):
+        return
+    try:
+        loop.default_exception_handler(context)
+    except Exception:
+        pass
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global EVENT_LOOP
     EVENT_LOOP = asyncio.get_running_loop()
+    if sys.platform == "win32":
+        EVENT_LOOP.set_exception_handler(_silence_win_proactor_errors)
     # Start throughput ticker
     asyncio.create_task(throughput_ticker())
     yield
@@ -370,6 +386,8 @@ class ContinuousLearningManager:
         self.lock = threading.Lock()
         self.is_busy_evolving = False
         self.history = []
+        self.X_norm_base = None
+        self.X_atk_base = None
 
     def get_status(self):
         pcap_size_kb = 0.0
@@ -479,7 +497,11 @@ class ContinuousLearningManager:
                 neat.DefaultSpeciesSet, neat.DefaultStagnation, config_file
             )
 
-            X_norm, X_atk = load_or_extract_dataset(base_dir=".")
+            if self.X_norm_base is None or self.X_atk_base is None:
+                self.X_norm_base, self.X_atk_base = load_or_extract_dataset(base_dir=".")
+
+            X_norm = self.X_norm_base
+            X_atk = self.X_atk_base
             if vectors_to_use:
                 live_arr = np.array(vectors_to_use, dtype=np.float32)
                 X_norm = np.vstack([X_norm, live_arr])

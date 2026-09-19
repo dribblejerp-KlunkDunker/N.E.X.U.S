@@ -77,7 +77,7 @@ def run_long_test(duration_secs: int = 180, pps: float = 6.0, threat_ratio: floa
             try:
                 post_req = urllib.request.Request(sim_url, data=b"{}", headers={"Content-Type": "application/json"})
                 with urllib.request.urlopen(post_req, timeout=2.0) as sim_resp:
-                    pass
+                    sim_resp.read()
             except Exception:
                 pass
 
