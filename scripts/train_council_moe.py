@@ -193,6 +193,8 @@ def train_single_specialist(
 
     pop = neat.Population(config)
     t0_start = time.time()
+    prev_best = None
+    stagnation_counter = 0
 
     for gen in range(generations):
         t0_gen = time.time()
@@ -209,7 +211,29 @@ def train_single_specialist(
         dur = max(0.001, time.time() - t0_gen)
         evals_sec = len(genomes) / dur
 
-        print(f"  [{spec_key[:3].upper()}] Gen {gen:02d} | Best: {best_g.fitness:.4f} | Avg: {avg_fit:.4f} | Speed: {evals_sec:.0f} evals/s ({dur*1000:.0f}ms)")
+        # Genetic Surgeon Stagnation Check
+        surgeon_note = ""
+        if prev_best is not None and abs(best_g.fitness - prev_best) < 0.001:
+            stagnation_counter += 1
+            if stagnation_counter >= 2:
+                from genetic_surgeon import GeneticSurgeon
+                surgeon = GeneticSurgeon()
+                X_v = np.vstack([val_norm, val_atk])
+                y_v = np.array([0] * len(val_norm) + [1] * len(val_atk), dtype=np.float32)
+                diag = surgeon.diagnose_genome(best_g, config, X_v, y_v)
+                if diag.get("has_stagnation_culprits"):
+                    spliced, ivs = surgeon.perform_surgery(best_g, config, diag, max_interventions=2)
+                    if ivs:
+                        worst_gid = min(pop.population.keys(), key=lambda gid: pop.population[gid].fitness)
+                        pop.population[worst_gid] = spliced
+                        surgeon_note = f" {YELLOW}[SURGEON: +{len(ivs)} splices]{RESET}"
+                        stagnation_counter = 0
+        else:
+            stagnation_counter = 0
+
+        prev_best = best_g.fitness
+
+        print(f"  [{spec_key[:3].upper()}] Gen {gen:02d} | Best: {best_g.fitness:.4f} | Avg: {avg_fit:.4f} | Speed: {evals_sec:.0f} evals/s ({dur*1000:.0f}ms){surgeon_note}")
 
         if gen < generations - 1:
             pop.run(lambda g, c: None, 1)

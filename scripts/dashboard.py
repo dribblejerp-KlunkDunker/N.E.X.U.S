@@ -26,6 +26,7 @@ from typing import Dict, List, Optional, Set
 from datetime import datetime
 from contextlib import asynccontextmanager
 
+import numpy as np
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, StreamingResponse, JSONResponse
@@ -955,6 +956,65 @@ async def run_adversary_stress_test():
     loop = asyncio.get_running_loop()
     report = await loop.run_in_executor(None, _run_test)
     return {"status": "completed", "benchmark": report}
+
+
+# --------------------------------------------------------------------
+# GENETIC SURGEON (META-LEARNING DIRECTED MUTATION) API
+# --------------------------------------------------------------------
+@app.get("/api/surgeon/status")
+async def get_surgeon_status():
+    from genetic_surgeon import GeneticSurgeon
+    surgeon = GeneticSurgeon()
+    history = surgeon.history
+    total_surgeries = sum(len(h.get("interventions", [])) for h in history)
+    recent = history[-10:] if history else []
+    return {
+        "status": "ready",
+        "total_surgeries": total_surgeries,
+        "history_count": len(history),
+        "recent_interventions": recent
+    }
+
+
+@app.post("/api/surgeon/operate")
+async def trigger_surgeon_operation():
+    """Triggers an on-demand genetic diagnosis and directed surgical graft."""
+    def _operate():
+        from genetic_surgeon import GeneticSurgeon
+        from benchmark_moe_vs_monolith import generate_benchmark_test_suites
+        surgeon = GeneticSurgeon()
+
+        with open("genomes/champion.pkl", "rb") as f:
+            data = pickle.load(f)
+        champ = data["genome"]
+        cfg = data["config"]
+
+        suites = generate_benchmark_test_suites()
+        X_l, y_l = [], []
+        for name, (feats, cat) in suites.items():
+            lbl = 1 if cat == "ATTACK" else 0
+            X_l.extend(feats[:30])
+            y_l.extend([lbl] * len(feats[:30]))
+        X_v = np.array(X_l, dtype=np.float32)
+        y_v = np.array(y_l, dtype=np.float32)
+
+        diagnosis = surgeon.diagnose_genome(champ, cfg, X_v, y_v)
+        spliced_genome, interventions = surgeon.perform_surgery(champ, cfg, diagnosis, max_interventions=2)
+
+        evt = {
+            "timestamp": datetime.now().strftime("%H:%M:%S"),
+            "interventions": interventions,
+            "accuracy": diagnosis["accuracy"],
+            "pre_fn": diagnosis["false_negatives"],
+            "pre_fp": diagnosis["false_positives"],
+            "neglected_count": len(diagnosis.get("neglected_attack_sensors", []))
+        }
+        broadcast_event("surgeon_intervention", evt)
+        return evt
+
+    loop = asyncio.get_running_loop()
+    result = await loop.run_in_executor(None, _operate)
+    return {"status": "operated", "data": result}
 
 
 @app.get("/api/genome")

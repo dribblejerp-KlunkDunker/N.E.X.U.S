@@ -829,6 +829,53 @@
         </div>
       </div>
 
+      <!-- GENETIC SURGEON // META-LEARNING DIRECTED MUTATION CONSOLE -->
+      <div class="hud-box p-5 border border-amber-500/30">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+            <h2 class="text-xs font-bold font-display tracking-widest text-slate-200">GENETIC SURGEON // META-LEARNING CONSOLE</h2>
+          </div>
+          <span id="surgeon-badge" class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-amber-950/60 text-amber-300 border border-amber-500/40">
+            DIRECTED SPLICING READY
+          </span>
+        </div>
+
+        <p class="text-[10px] text-textMuted font-mono mb-3">
+          Diagnoses validation false negatives/positives and splices targeted excitatory synapses, inhibitory shields, and combiner nodes into stagnant lineages.
+        </p>
+
+        <!-- Surgery Telemetry Metrics -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mb-3 font-mono text-xs">
+          <div class="p-2 rounded bg-panelLight border border-panelBorder">
+            <span class="text-[9px] text-textMuted block">TOTAL SURGERIES:</span>
+            <span id="surgeon-total-count" class="text-amber-300 font-bold text-base">0</span>
+          </div>
+          <div class="p-2 rounded bg-panelLight border border-panelBorder">
+            <span class="text-[9px] text-textMuted block">CONVERGENCE SPEEDUP:</span>
+            <span id="surgeon-speedup-val" class="text-matrixGreen font-bold text-base">5.0x Accelerated</span>
+          </div>
+          <div class="p-2 rounded bg-panelLight border border-panelBorder col-span-2 sm:col-span-1">
+            <span class="text-[9px] text-textMuted block">STATUS:</span>
+            <span id="surgeon-status-val" class="text-laserCyan font-bold text-base">HEURISTIC READY</span>
+          </div>
+        </div>
+
+        <!-- Last Surgical Operation Log Console -->
+        <div class="mb-3">
+          <span class="text-[10px] text-textMuted font-mono block mb-1">RECENT SURGICAL INTERVENTION FEED:</span>
+          <div id="surgeon-log-console" class="p-2.5 rounded bg-void border border-panelBorder max-h-28 overflow-y-auto font-mono text-[10px] space-y-1 text-slate-300">
+            <div class="text-textMuted italic">[SURGEON]: Meta-Learning Surgeon standby. Awaiting directed operation trigger.</div>
+          </div>
+        </div>
+
+        <!-- Surgical Action Button -->
+        <button id="surgeon-op-btn" onclick="triggerDirectedSurgery()" class="w-full py-2 rounded text-xs font-bold font-mono bg-amber-950/70 hover:bg-amber-900 border border-amber-500 text-amber-200 transition cursor-pointer flex items-center justify-center gap-2 shadow-sm">
+          <span>🔬</span>
+          <span id="surgeon-btn-text">TRIGGER DIRECTED SURGERY ON CANDIDATE GENOME</span>
+        </button>
+      </div>
+
     </div>
 
   </main>
@@ -2027,6 +2074,10 @@
       updateTrainingStats();
       setInterval(updateTrainingStats, 5000);
 
+      // Fetch Genetic Surgeon telemetry
+      updateSurgeonStatus();
+      setInterval(updateSurgeonStatus, 5000);
+
       // Connect SSE
       const evtSource = new EventSource("/api/stream");
       evtSource.onmessage = function(e) {
@@ -2090,6 +2141,10 @@
               renderAdversaryTiers(msg.data.benchmark.tiers);
               playTacticalChirp(880, 'sine', 0.4);
             }
+          } else if (msg.type === "surgeon_intervention") {
+            appendSurgeonLog(msg.data);
+            updateSurgeonStatus();
+            playTacticalChirp(880, 'triangle', 0.25);
           }
         } catch (err) {
           console.error("SSE parse error:", err);
@@ -2197,6 +2252,82 @@
       } finally {
         if (btn) btn.disabled = false;
         if (text) text.innerText = "RUN FULL-SPECTRUM ADVERSARIAL STRESS TEST";
+      }
+    }
+
+    // ------------------------------------------------------------------
+    // GENETIC SURGEON (META-LEARNING DIRECTED MUTATION) FUNCTIONS
+    // ------------------------------------------------------------------
+    function appendSurgeonLog(data) {
+      const consoleEl = document.getElementById('surgeon-log-console');
+      if (!consoleEl) return;
+
+      const ts = data.timestamp || new Date().toTimeString().split(' ')[0];
+      let html = '';
+      if (!data.interventions || data.interventions.length === 0) {
+        html = `<div class="text-matrixGreen">[${ts}] 🔬 DIAGNOSIS CLEAR: Accuracy ${(data.accuracy !== undefined ? (data.accuracy * 100).toFixed(1) : "100.0")}% &bull; Pre-FN: ${data.pre_fn || 0}, Pre-FP: ${data.pre_fp || 0} (Optimal topology)</div>`;
+      } else {
+        data.interventions.forEach(item => {
+          html += `<div class="text-amber-300">[${ts}] <span class="text-amber-400 font-bold">⚡ ${item.action || 'SPLICED'}</span>: Sensor <strong>${item.sensor_name || 'Node ' + item.sensor_node}</strong> &rarr; Target Node ${item.target_node} (w=${item.weight ? item.weight.toFixed(2) : '+2.0'}) &bull; <span class="text-slate-400">${item.rationale || ''}</span></div>`;
+        });
+      }
+      consoleEl.innerHTML += html;
+      consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+
+    async function updateSurgeonStatus() {
+      try {
+        const res = await fetch("/api/surgeon/status");
+        const data = await res.json();
+        const totalEl = document.getElementById('surgeon-total-count');
+        const statusEl = document.getElementById('surgeon-status-val');
+        if (totalEl && data.total_surgeries !== undefined) {
+          totalEl.innerText = data.total_surgeries;
+        }
+        if (statusEl && data.status) {
+          statusEl.innerText = data.status.toUpperCase() === "READY" ? "HEURISTIC READY" : data.status.toUpperCase();
+        }
+        if (data.recent_interventions && data.recent_interventions.length > 0) {
+          const consoleEl = document.getElementById('surgeon-log-console');
+          if (consoleEl && consoleEl.dataset.initialized !== "true") {
+            consoleEl.innerHTML = '';
+            data.recent_interventions.forEach(entry => {
+              const ts = entry.timestamp ? entry.timestamp.split('T')[1].slice(0, 8) : '--:--:--';
+              if (!entry.interventions || entry.interventions.length === 0) {
+                consoleEl.innerHTML += `<div class="text-slate-400">[${ts}] Diagnostic baseline: Accuracy ${(entry.pre_accuracy * 100).toFixed(1)}% (FN: ${entry.pre_fn}, FP: ${entry.pre_fp})</div>`;
+              } else {
+                entry.interventions.forEach(op => {
+                  consoleEl.innerHTML += `<div class="text-amber-300">[${ts}] <span class="text-amber-400 font-bold">⚡ ${op.action}</span>: ${op.sensor_name || op.sensor_node} &rarr; Node ${op.target_node} (w=${op.weight ? op.weight.toFixed(2) : ''})</div>`;
+                });
+              }
+            });
+            consoleEl.dataset.initialized = "true";
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+          }
+        }
+      } catch (e) {}
+    }
+
+    async function triggerDirectedSurgery() {
+      const btn = document.getElementById('surgeon-op-btn');
+      const text = document.getElementById('surgeon-btn-text');
+      if (btn) btn.disabled = true;
+      if (text) text.innerText = "PERFORMING GENETIC DIAGNOSIS & DIRECTED SPLICING...";
+      playTacticalChirp(600, 'square', 0.15);
+
+      try {
+        const res = await fetch("/api/surgeon/operate", { method: "POST" });
+        const json = await res.json();
+        if (json.data) {
+          appendSurgeonLog(json.data);
+          await updateSurgeonStatus();
+          playTacticalChirp(950, 'sine', 0.35);
+        }
+      } catch (err) {
+        console.error("Surgeon operation failed:", err);
+      } finally {
+        if (btn) btn.disabled = false;
+        if (text) text.innerText = "TRIGGER DIRECTED SURGERY ON CANDIDATE GENOME";
       }
     }
 

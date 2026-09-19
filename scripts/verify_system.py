@@ -1,6 +1,6 @@
 """
 NEXUS System Integrity & Pre-Flight Diagnostic Suite
-Runs comprehensive health checks across all 5 architectural planes,
+Runs comprehensive health checks across all 9 architectural planes,
 models, network interfaces, and web dashboard readiness.
 """
 
@@ -331,6 +331,59 @@ def run_diagnostics():
 
     stress_res_path = "logs/adversarial_stress_results.json"
     print_check("Adversarial Benchmark Telemetry", os.path.exists(stress_res_path), stress_res_path)
+
+    # -------------------------------------------------------------
+    # 9. GENETIC SURGEON META-LEARNING ENGINE PLANE
+    # -------------------------------------------------------------
+    print_header("9. Genetic Surgeon Meta-Learning Directed Mutation Engine")
+    try:
+        from genetic_surgeon import GeneticSurgeon
+        surgeon = GeneticSurgeon()
+        print_check("Genetic Surgeon Module", True, "GeneticSurgeon initialized")
+
+        import neat
+        import neat.innovation
+        neat_cfg = neat.Config(
+            neat.DefaultGenome,
+            neat.DefaultReproduction,
+            neat.DefaultSpeciesSet,
+            neat.DefaultStagnation,
+            "config/config-council-volumetric.txt"
+        )
+        neat_cfg.genome_config.innovation_tracker = neat.innovation.InnovationTracker()
+        test_genome = neat.DefaultGenome(9999)
+        test_genome.configure_new(neat_cfg.genome_config)
+        test_genome.nodes[0].bias = -2.0
+        test_genome.connections.clear()
+
+        # Create dummy validation data with deliberate false negatives
+        dummy_X = np.random.uniform(0.5, 1.0, (40, 7)).astype(np.float32)
+        dummy_y = np.ones(40, dtype=np.float32)
+
+        diag = surgeon.diagnose_genome(test_genome, neat_cfg, dummy_X, dummy_y)
+        diag_ok = ("false_negatives" in diag and "accuracy" in diag)
+        print_check("Genome Diagnostic Analyzer", diag_ok, f"FN={diag.get('false_negatives')}, Accuracy={diag.get('accuracy', 0):.2f}")
+        if not diag_ok:
+            all_passed = False
+
+        spliced_genome, ops = surgeon.perform_surgery(test_genome, neat_cfg, diag, max_interventions=2)
+        spliced_ok = len(ops) > 0 and (len(spliced_genome.connections) >= len(test_genome.connections))
+        print_check("Synaptic Splice & Recalibration", spliced_ok, f"{len(ops)} surgical interventions grafted")
+        if not spliced_ok:
+            all_passed = False
+
+    except Exception as e:
+        print_check("Genetic Surgeon Engine", False, str(e))
+        all_passed = False
+
+    surgeon_bench_script = "scripts/benchmark_surgeon_acceleration.py"
+    print_check("Surgeon Benchmark Script", os.path.exists(surgeon_bench_script), surgeon_bench_script)
+
+    surgeon_hist_path = "logs/genetic_surgery_history.json"
+    print_check("Genetic Surgery History Log", os.path.exists(surgeon_hist_path), surgeon_hist_path)
+
+    surgeon_bench_res = "logs/surgeon_benchmark_results.json"
+    print_check("Surgeon Benchmark Telemetry", os.path.exists(surgeon_bench_res), surgeon_bench_res)
 
     # -------------------------------------------------------------
     # FINAL VERDICT
