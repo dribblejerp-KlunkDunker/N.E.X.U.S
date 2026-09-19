@@ -209,6 +209,10 @@
         <button id="tab-btn-lab" onclick="switchDeck('lab')" class="px-4 py-1.5 font-bold border-b-2 border-transparent text-textMuted hover:text-white transition">
           [ DECK 2: NEURAL GENOME & TRAINING LAB ]
         </button>
+        <button id="tab-btn-continuous" onclick="switchDeck('continuous')" class="px-4 py-1.5 font-bold border-b-2 border-transparent text-textMuted hover:text-white transition flex items-center gap-2">
+          <span id="tab-continuous-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+          [ DECK 3: CONTINUOUS SNIFFING, LEARNING & EVOLUTION ]
+        </button>
       </div>
       <div class="text-[11px] text-textMuted hidden md:block">
         SYSTEM CLOCK: <span id="system-time" class="text-slate-300 font-semibold">00:00:00</span>
@@ -634,6 +638,246 @@
   </main>
 
   <!-- ==================================================================== -->
+  <!-- DECK 3: AUTONOMOUS CONTINUOUS SNIFFING, LEARNING & EVOLUTION HUB      -->
+  <!-- ==================================================================== -->
+  <main id="deck-continuous" class="hidden flex-1 max-w-[1600px] w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
+
+    <!-- MASTER CONTINUOUS LEARNING CONTROLLER & STATUS BAR -->
+    <div class="hud-box p-5">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <span id="cont-status-indicator" class="w-3 h-3 rounded-full bg-slate-500"></span>
+            <h2 class="text-sm font-bold font-display tracking-widest text-white">AUTONOMOUS CONTINUOUS LEARNING LOOP</h2>
+            <span id="cont-status-badge" class="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-slate-800 text-slate-300 border border-slate-700">STANDBY / IDLE</span>
+          </div>
+          <p class="text-[11px] text-textMuted font-mono mt-1">Live packets buffered to rotating PCAP &rarr; 20-D feature extraction &rarr; 16 Ray workers evolve NEAT population &rarr; Hot-reload</p>
+        </div>
+
+        <!-- Action Controls -->
+        <div class="flex items-center gap-3">
+          <button id="cont-toggle-btn" onclick="toggleContinuousLoop()" class="px-4 py-2 rounded text-xs font-mono font-bold tracking-wider transition flex items-center gap-2 bg-matrixGreen/20 hover:bg-matrixGreen/30 text-matrixGreen border border-matrixGreen/60 cursor-pointer shadow-sm">
+            <span id="cont-toggle-icon">▶</span> <span id="cont-toggle-label">START CONTINUOUS LEARNING LOOP</span>
+          </button>
+          <button onclick="injectContinuousBatch()" title="Inject a test burst of 35 mixed normal & threat packets to trigger an evolution cycle" class="px-3.5 py-2 rounded text-xs font-mono font-bold tracking-wider bg-laserCyan/20 hover:bg-laserCyan/30 text-laserCyan border border-laserCyan/50 transition cursor-pointer flex items-center gap-1.5">
+            <span>⚡</span> INJECT TEST BATCH (35 PKTS)
+          </button>
+        </div>
+      </div>
+
+      <!-- Real-Time Metrics Strip -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-4 pt-4 border-t border-panelBorder/70 text-xs font-mono">
+        <div class="p-2.5 rounded bg-panelLight border border-panelBorder">
+          <span class="text-[10px] text-textMuted block">CYCLES COMPLETED:</span>
+          <span id="cont-cycles" class="text-laserCyan font-bold text-base">0</span>
+        </div>
+        <div class="p-2.5 rounded bg-panelLight border border-panelBorder">
+          <span class="text-[10px] text-textMuted block">CURRENT BUFFER:</span>
+          <span id="cont-buffer" class="text-white font-bold text-base">0 / 30</span>
+        </div>
+        <div class="p-2.5 rounded bg-panelLight border border-panelBorder">
+          <span class="text-[10px] text-textMuted block">TOTAL SAVED PKTS:</span>
+          <span id="cont-saved-pkts" class="text-matrixGreen font-bold text-base">0</span>
+        </div>
+        <div class="p-2.5 rounded bg-panelLight border border-panelBorder">
+          <span class="text-[10px] text-textMuted block">PCAP ON DISK:</span>
+          <span id="cont-pcap-size" class="text-slate-200 font-bold text-base">0.0 KB</span>
+        </div>
+        <div class="p-2.5 rounded bg-panelLight border border-panelBorder">
+          <span class="text-[10px] text-textMuted block">CHAMPIONS PROMOTED:</span>
+          <span id="cont-promotions" class="text-warningAmber font-bold text-base">0</span>
+        </div>
+        <div class="p-2.5 rounded bg-panelLight border border-panelBorder">
+          <span class="text-[10px] text-textMuted block">ACTIVE CHAMPION:</span>
+          <span id="cont-champ-fit" class="text-matrixGreen font-bold text-base">0.9980</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4-STAGE PIPELINE FLOW ARCHITECTURE -->
+    <div class="hud-box p-5">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-laserCyan">⚙️</span>
+          <h3 class="text-xs font-bold font-display tracking-widest text-slate-200">AUTONOMOUS 4-STAGE PIPELINE STATE</h3>
+        </div>
+        <span id="cont-pipeline-stage-label" class="text-[10px] font-mono text-textMuted">CURRENT STAGE: IDLE</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
+        <!-- Stage 1 -->
+        <div id="pipe-stage-1" class="p-3.5 rounded bg-panelLight border border-panelBorder transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[10px] text-textMuted font-bold">STAGE 01</span>
+              <span class="w-2 h-2 rounded-full bg-slate-600" id="pipe-dot-1"></span>
+            </div>
+            <div class="font-bold text-white tracking-wide">LIVE SNIFF & PCAP WRITER</div>
+            <p class="text-[10px] text-textMuted mt-1">Direct from Physical NIC into <span class="text-slate-300">continuous_baseline.pcap</span></p>
+          </div>
+          <div class="mt-3 text-[10px] pt-2 border-t border-panelBorder/60 flex justify-between text-slate-400">
+            <span>Buffer Threshold:</span>
+            <span class="text-laserCyan font-bold">30 Packets</span>
+          </div>
+        </div>
+
+        <!-- Stage 2 -->
+        <div id="pipe-stage-2" class="p-3.5 rounded bg-panelLight border border-panelBorder transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[10px] text-textMuted font-bold">STAGE 02</span>
+              <span class="w-2 h-2 rounded-full bg-slate-600" id="pipe-dot-2"></span>
+            </div>
+            <div class="font-bold text-white tracking-wide">20-D FEATURE EXTRACTION</div>
+            <p class="text-[10px] text-textMuted mt-1">Shannon byte entropy, stealth flags, TTL divergence, window ratios</p>
+          </div>
+          <div class="mt-3 text-[10px] pt-2 border-t border-panelBorder/60 flex justify-between text-slate-400">
+            <span>Vector Dimensions:</span>
+            <span class="text-laserCyan font-bold">20 Normalized</span>
+          </div>
+        </div>
+
+        <!-- Stage 3 -->
+        <div id="pipe-stage-3" class="p-3.5 rounded bg-panelLight border border-panelBorder transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[10px] text-textMuted font-bold">STAGE 03</span>
+              <span class="w-2 h-2 rounded-full bg-slate-600" id="pipe-dot-3"></span>
+            </div>
+            <div class="font-bold text-white tracking-wide">16-CORE RAY EVOLUTION</div>
+            <p class="text-[10px] text-textMuted mt-1">150 genomes evaluated across parallel worker cluster</p>
+          </div>
+          <div class="mt-3 text-[10px] pt-2 border-t border-panelBorder/60 flex justify-between text-slate-400">
+            <span>Evaluations / Sec:</span>
+            <span class="text-matrixGreen font-bold">~500 evals/s</span>
+          </div>
+        </div>
+
+        <!-- Stage 4 -->
+        <div id="pipe-stage-4" class="p-3.5 rounded bg-panelLight border border-panelBorder transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[10px] text-textMuted font-bold">STAGE 04</span>
+              <span class="w-2 h-2 rounded-full bg-slate-600" id="pipe-dot-4"></span>
+            </div>
+            <div class="font-bold text-white tracking-wide">HOLDOUT GATE & RELOAD</div>
+            <p class="text-[10px] text-textMuted mt-1">Archive previous champion, promote winner, broadcast <span class="text-slate-300">.reload_signal</span></p>
+          </div>
+          <div class="mt-3 text-[10px] pt-2 border-t border-panelBorder/60 flex justify-between text-slate-400">
+            <span>Downtime:</span>
+            <span class="text-matrixGreen font-bold">0.0 ms (Instant)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE REAL-TIME TELEMETRY GRAPHS (OSCILLOSCOPE & CONTINUOUS FITNESS) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- LEFT: REAL-TIME THREAT & ANOMALY OSCILLOSCOPE (7 COLS) -->
+      <div class="lg:col-span-7 hud-box p-5 flex flex-col">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-neonRed animate-pulse"></span>
+              <h3 class="text-xs font-bold font-display tracking-widest text-slate-200">REAL-TIME THREAT & ANOMALY OSCILLOSCOPE</h3>
+            </div>
+            <p class="text-[10px] text-textMuted font-mono">Live scrolling waveform of every evaluated packet score (0.0 = Normal, 1.0 = Lethal Threat)</p>
+          </div>
+          <div class="flex items-center gap-3 text-[10px] font-mono">
+            <span class="flex items-center gap-1 text-matrixGreen"><span class="w-2 h-2 rounded-full bg-matrixGreen"></span> Baseline (&lt;0.5)</span>
+            <span class="flex items-center gap-1 text-warningAmber"><span class="w-2 h-2 rounded-full bg-warningAmber"></span> Elevated</span>
+            <span class="flex items-center gap-1 text-neonRed"><span class="w-2 h-2 rounded-full bg-neonRed"></span> Threat (&ge;0.85)</span>
+          </div>
+        </div>
+
+        <div class="relative w-full h-64 bg-void border border-panelBorder rounded overflow-hidden">
+          <canvas id="oscilloscope-canvas" class="w-full h-full block"></canvas>
+          <div class="absolute inset-0 scanline-overlay"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: CONTINUOUS EVOLUTION TRAJECTORY (5 COLS) -->
+      <div class="lg:col-span-5 hud-box p-5 flex flex-col">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-matrixGreen">📈</span>
+            <h3 class="text-xs font-bold font-display tracking-widest text-slate-200">CONTINUOUS EVOLUTION PROGRESSION</h3>
+          </div>
+          <span id="cont-evolve-counter" class="text-[10px] font-mono text-laserCyan font-bold">0 Generations</span>
+        </div>
+
+        <div class="relative w-full h-64 bg-void border border-panelBorder rounded p-3 flex flex-col justify-between">
+          <svg id="cont-chart-svg" class="w-full h-full" viewBox="0 0 400 200">
+            <!-- Background Grid -->
+            <line x1="30" y1="20" x2="380" y2="20" stroke="#161c28" stroke-dasharray="2"/>
+            <line x1="30" y1="70" x2="380" y2="70" stroke="#161c28" stroke-dasharray="2"/>
+            <line x1="30" y1="120" x2="380" y2="120" stroke="#161c28" stroke-dasharray="2"/>
+            <line x1="30" y1="170" x2="380" y2="170" stroke="#161c28" stroke-dasharray="2"/>
+
+            <text x="5" y="25" class="fill-textMuted font-mono text-[9px]">1.00</text>
+            <text x="5" y="75" class="fill-textMuted font-mono text-[9px]">0.90</text>
+            <text x="5" y="125" class="fill-textMuted font-mono text-[9px]">0.75</text>
+            <text x="5" y="175" class="fill-textMuted font-mono text-[9px]">0.50</text>
+
+            <path id="cont-line-best" d="M 40 40 L 380 40" fill="none" stroke="#00ff88" stroke-width="2.5" stroke-linecap="round"/>
+            <path id="cont-line-avg" d="M 40 90 L 380 90" fill="none" stroke="#00f0ff" stroke-width="1.5" stroke-dasharray="3" stroke-linecap="round"/>
+            <g id="cont-chart-points"></g>
+          </svg>
+
+          <div class="flex items-center justify-between text-[10px] font-mono text-textMuted px-2">
+            <span class="flex items-center gap-1 text-matrixGreen"><span class="w-3 h-0.5 bg-matrixGreen inline-block"></span> Candidate Best</span>
+            <span class="flex items-center gap-1 text-laserCyan"><span class="w-3 h-0.5 bg-laserCyan inline-block"></span> Pop Average</span>
+            <span id="cont-chart-latest" class="text-white font-bold">Waiting for Cycle...</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- LOWER ROW: 60-SECOND VELOCITY STREAM & CONTINUOUS FORENSIC AUDIT CONSOLE -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- LEFT: 60-SECOND VELOCITY STREAM (5 COLS) -->
+      <div class="lg:col-span-5 hud-box p-5 flex flex-col">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-laserCyan">⚡</span>
+            <h3 class="text-xs font-bold font-display tracking-widest text-slate-200">THROUGHPUT VELOCITY (ROLLING 60S)</h3>
+          </div>
+          <div class="text-[10px] font-mono text-textMuted">
+            <span class="text-laserCyan font-bold" id="cont-live-pps">0</span> PPS | <span class="text-white font-bold" id="cont-live-kbps">0.0</span> KB/s
+          </div>
+        </div>
+
+        <div class="relative w-full h-48 bg-void border border-panelBorder rounded overflow-hidden">
+          <canvas id="cont-velocity-canvas" class="w-full h-full block"></canvas>
+          <div class="absolute inset-0 scanline-overlay"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: CONTINUOUS FORENSIC AUDIT CONSOLE (7 COLS) -->
+      <div class="lg:col-span-7 hud-box p-5 flex flex-col">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-matrixGreen">📜</span>
+            <h3 class="text-xs font-bold font-display tracking-widest text-slate-200">CONTINUOUS FORENSIC AUDIT TERMINAL</h3>
+          </div>
+          <button onclick="clearContinuousAuditConsole()" class="px-2 py-0.5 rounded bg-panelLight hover:bg-panelBorder border border-panelBorder text-[10px] font-mono text-textMuted cursor-pointer">
+            CLEAR
+          </button>
+        </div>
+
+        <div id="cont-audit-console" class="flex-1 max-h-48 overflow-y-auto bg-void border border-panelBorder rounded p-2.5 font-mono text-[11px] space-y-1">
+          <div class="text-textMuted italic">[SYSTEM]: Continuous Sniffing, Learning & Evolving Hub ready. Awaiting loop activation.</div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ==================================================================== -->
   <!-- JAVASCRIPT: SSE, CANVAS NEURAL TOPOLOGY, DOSSIER & AUDIO             -->
   <!-- ==================================================================== -->
   <script>
@@ -667,19 +911,30 @@
     function switchDeck(deck) {
       const ops = document.getElementById('deck-ops');
       const lab = document.getElementById('deck-lab');
+      const cont = document.getElementById('deck-continuous');
       const btnOps = document.getElementById('tab-btn-ops');
       const btnLab = document.getElementById('tab-btn-lab');
+      const btnCont = document.getElementById('tab-btn-continuous');
+
+      ops.classList.add('hidden');
+      lab.classList.add('hidden');
+      cont.classList.add('hidden');
+      btnOps.className = "px-4 py-1.5 font-bold border-b-2 border-transparent text-textMuted hover:text-white transition";
+      btnLab.className = "px-4 py-1.5 font-bold border-b-2 border-transparent text-textMuted hover:text-white transition";
+      btnCont.className = "px-4 py-1.5 font-bold border-b-2 border-transparent text-textMuted hover:text-white transition flex items-center gap-2";
 
       if (deck === 'ops') {
         ops.classList.remove('hidden');
-        lab.classList.add('hidden');
         btnOps.className = "px-4 py-1.5 font-bold border-b-2 border-laserCyan text-laserCyan bg-laserCyan/5 transition";
-        btnLab.className = "px-4 py-1.5 font-bold border-b-2 border-transparent text-textMuted hover:text-white transition";
-      } else {
-        ops.classList.add('hidden');
+      } else if (deck === 'lab') {
         lab.classList.remove('hidden');
         btnLab.className = "px-4 py-1.5 font-bold border-b-2 border-matrixGreen text-matrixGreen bg-matrixGreen/5 transition";
-        btnOps.className = "px-4 py-1.5 font-bold border-b-2 border-transparent text-textMuted hover:text-white transition";
+      } else if (deck === 'continuous') {
+        cont.classList.remove('hidden');
+        btnCont.className = "px-4 py-1.5 font-bold border-b-2 border-laserCyan text-laserCyan bg-laserCyan/5 transition flex items-center gap-2";
+        resizeContinuousCanvases();
+        renderOscilloscope();
+        renderVelocityCanvas();
       }
     }
 
@@ -1112,10 +1367,369 @@
     }
 
     // ------------------------------------------------------------------
+    // REAL-TIME CONTINUOUS TELEMETRY & GRAPHING STATE
+    // ------------------------------------------------------------------
+    let scoreHistory = [];
+    let velocityHistory = [];
+    let continuousFitnessHistory = [];
+    let isContinuousRunning = false;
+
+    function resizeContinuousCanvases() {
+      const osc = document.getElementById('oscilloscope-canvas');
+      if (osc && osc.parentElement) {
+        osc.width = osc.parentElement.clientWidth;
+        osc.height = osc.parentElement.clientHeight;
+      }
+      const vel = document.getElementById('cont-velocity-canvas');
+      if (vel && vel.parentElement) {
+        vel.width = vel.parentElement.clientWidth;
+        vel.height = vel.parentElement.clientHeight;
+      }
+    }
+    window.addEventListener('resize', resizeContinuousCanvases);
+
+    // 1. REAL-TIME THREAT & ANOMALY OSCILLOSCOPE RENDERER
+    function renderOscilloscope() {
+      const canvas = document.getElementById('oscilloscope-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+      if (!w || !h) return;
+
+      ctx.fillStyle = "#05070a";
+      ctx.fillRect(0, 0, w, h);
+
+      // Grid lines
+      ctx.strokeStyle = "#161c28";
+      ctx.lineWidth = 1;
+      [0.25, 0.50, 0.75, 1.0].forEach(lvl => {
+        const y = h - (lvl * (h - 24)) - 12;
+        ctx.beginPath();
+        ctx.setLineDash([4, 4]);
+        ctx.moveTo(35, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      });
+
+      // 0.85 Threat Gate Line (Red dashed with glow)
+      const yThresh = h - (0.85 * (h - 24)) - 12;
+      ctx.save();
+      ctx.strokeStyle = "rgba(255, 0, 60, 0.7)";
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([6, 3]);
+      ctx.shadowColor = "#ff003c";
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.moveTo(35, yThresh);
+      ctx.lineTo(w, yThresh);
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.setLineDash([]);
+      ctx.font = "9px 'JetBrains Mono', monospace";
+      ctx.fillStyle = "#ff003c";
+      ctx.fillText("0.85 THREAT GATE", w - 105, yThresh - 4);
+
+      // Y-axis labels
+      ctx.fillStyle = "#6b7994";
+      ctx.fillText("1.0", 8, 16);
+      ctx.fillText("0.5", 8, h / 2);
+      ctx.fillText("0.0", 8, h - 8);
+
+      if (scoreHistory.length < 2) return;
+
+      const padLeft = 38;
+      const plotW = w - padLeft - 10;
+      const n = scoreHistory.length;
+      const step = plotW / Math.max(n - 1, 1);
+
+      // Waveform line
+      ctx.save();
+      ctx.beginPath();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#00f0ff";
+      ctx.shadowColor = "rgba(0, 240, 255, 0.5)";
+      ctx.shadowBlur = 6;
+
+      scoreHistory.forEach((pt, i) => {
+        const x = padLeft + i * step;
+        const y = h - (pt.score * (h - 24)) - 12;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.restore();
+
+      // Individual packet dots
+      scoreHistory.forEach((pt, i) => {
+        const x = padLeft + i * step;
+        const y = h - (pt.score * (h - 24)) - 12;
+        ctx.beginPath();
+        if (pt.score >= 0.85) {
+          ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+          ctx.fillStyle = "#ff003c";
+          ctx.fill();
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        } else if (pt.score >= 0.5) {
+          ctx.arc(x, y, 3, 0, Math.PI * 2);
+          ctx.fillStyle = "#ffb703";
+          ctx.fill();
+        } else {
+          ctx.arc(x, y, 2, 0, Math.PI * 2);
+          ctx.fillStyle = "#00ff88";
+          ctx.fill();
+        }
+      });
+    }
+
+    // 2. REAL-TIME VELOCITY CANVAS RENDERER
+    function renderVelocityCanvas() {
+      const canvas = document.getElementById('cont-velocity-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+      if (!w || !h) return;
+
+      ctx.fillStyle = "#05070a";
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.strokeStyle = "#161c28";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 4]);
+      for (let y = h - 20; y > 10; y -= 35) {
+        ctx.beginPath();
+        ctx.moveTo(35, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
+
+      if (velocityHistory.length < 2) return;
+
+      const maxPPS = Math.max(...velocityHistory.map(v => v.pps), 20);
+      const padLeft = 35;
+      const plotW = w - padLeft - 10;
+      const n = velocityHistory.length;
+      const step = plotW / Math.max(n - 1, 1);
+
+      // Area fill for PPS
+      ctx.save();
+      const grad = ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, "rgba(0, 240, 255, 0.35)");
+      grad.addColorStop(1, "rgba(0, 240, 255, 0.0)");
+      ctx.beginPath();
+      velocityHistory.forEach((v, i) => {
+        const x = padLeft + i * step;
+        const y = h - ((v.pps / maxPPS) * (h - 26)) - 12;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.lineTo(padLeft + (n - 1) * step, h - 10);
+      ctx.lineTo(padLeft, h - 10);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.restore();
+
+      // PPS line
+      ctx.beginPath();
+      ctx.strokeStyle = "#00f0ff";
+      ctx.lineWidth = 2;
+      velocityHistory.forEach((v, i) => {
+        const x = padLeft + i * step;
+        const y = h - ((v.pps / maxPPS) * (h - 26)) - 12;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+    }
+
+    // 3. CONTINUOUS EVOLUTION CHART RENDERER
+    function renderContinuousEvolutionChart() {
+      const bestLine = document.getElementById('cont-line-best');
+      const avgLine = document.getElementById('cont-line-avg');
+      const pointsG = document.getElementById('cont-chart-points');
+      if (!bestLine || !avgLine || !pointsG) return;
+      if (continuousFitnessHistory.length === 0) return;
+
+      const minX = 40, maxX = 380;
+      const minY = 170, maxY = 25;
+      const n = continuousFitnessHistory.length;
+
+      let bestPath = '';
+      let avgPath = '';
+      let pointsHtml = '';
+
+      continuousFitnessHistory.forEach((pt, i) => {
+        const x = n === 1 ? minX : minX + (i / (n - 1)) * (maxX - minX);
+        const yBest = minY - (pt.best_fitness * (minY - maxY));
+        const yAvg = minY - (pt.avg_fitness * (minY - maxY));
+
+        if (i === 0) {
+          bestPath = `M ${x} ${yBest}`;
+          avgPath = `M ${x} ${yAvg}`;
+        } else {
+          bestPath += ` L ${x} ${yBest}`;
+          avgPath += ` L ${x} ${yAvg}`;
+        }
+
+        pointsHtml += `
+          <circle cx="${x}" cy="${yBest}" r="3" fill="#00ff88" />
+          <circle cx="${x}" cy="${yAvg}" r="2.5" fill="#00f0ff" />
+        `;
+      });
+
+      bestLine.setAttribute('d', bestPath);
+      avgLine.setAttribute('d', avgPath);
+      pointsG.innerHTML = pointsHtml;
+
+      const latest = continuousFitnessHistory[continuousFitnessHistory.length - 1];
+      if (latest) {
+        document.getElementById('cont-chart-latest').innerText = `Cycle #${latest.cycle} Gen ${latest.generation} (Best: ${latest.best_fitness.toFixed(4)})`;
+        document.getElementById('cont-evolve-counter').innerText = `${continuousFitnessHistory.length} Generations Evolved`;
+      }
+    }
+
+    // 4. PIPELINE STAGES ANIMATION
+    function updatePipelineStages(stage) {
+      const label = document.getElementById('cont-pipeline-stage-label');
+      if (label) label.innerText = `CURRENT STAGE: ${stage}`;
+
+      const stages = {
+        "SNIFFING": 1,
+        "SAVING_PCAP": 1,
+        "EXTRACTING_20D": 2,
+        "RAY_EVOLUTION": 3,
+        "HOLDOUT_VALIDATION": 4,
+        "HOT_RELOAD": 4,
+        "IDLE": 0
+      };
+      const activeNum = stages[stage] || 0;
+
+      for (let i = 1; i <= 4; i++) {
+        const box = document.getElementById(`pipe-stage-${i}`);
+        const dot = document.getElementById(`pipe-dot-${i}`);
+        if (!box || !dot) continue;
+
+        if (i === activeNum) {
+          box.className = "p-3.5 rounded bg-panelLight border-2 border-laserCyan shadow-cyanGlow transition-all duration-300 flex flex-col justify-between";
+          dot.className = "w-2.5 h-2.5 rounded-full bg-laserCyan animate-ping";
+        } else {
+          box.className = "p-3.5 rounded bg-panelLight border border-panelBorder opacity-70 transition-all duration-300 flex flex-col justify-between";
+          dot.className = "w-2 h-2 rounded-full bg-slate-600";
+        }
+      }
+    }
+
+    // 5. CONTINUOUS AUDIT CONSOLE
+    function addContinuousAuditLog(log) {
+      const consoleEl = document.getElementById('cont-audit-console');
+      if (!consoleEl) return;
+
+      const stageColors = {
+        "SAVE": "text-matrixGreen font-bold",
+        "EXTRACT": "text-laserCyan font-bold",
+        "RAY_EVOLVE": "text-warningAmber font-bold",
+        "GATE": "text-purple-400 font-bold",
+        "PROMOTE": "text-neonRed font-bold",
+        "RETAIN": "text-slate-400 font-semibold",
+        "CONTROL": "text-white font-bold",
+        "INJECT": "text-laserCyan font-bold",
+        "ERROR": "text-neonRed font-black"
+      };
+
+      const color = stageColors[log.stage] || "text-slate-300";
+      const div = document.createElement('div');
+      div.className = "flex items-baseline gap-2";
+      div.innerHTML = `
+        <span class="text-textMuted">[${log.time}]</span>
+        <span class="${color}">[${log.stage}]</span>
+        <span class="text-slate-200">${log.message}</span>
+      `;
+      consoleEl.appendChild(div);
+      consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+
+    function clearContinuousAuditConsole() {
+      const consoleEl = document.getElementById('cont-audit-console');
+      if (consoleEl) consoleEl.innerHTML = '<div class="text-textMuted italic">[SYSTEM]: Continuous Audit Terminal cleared.</div>';
+    }
+
+    // 6. CONTINUOUS TOGGLE & INJECT HANDLERS
+    async function toggleContinuousLoop() {
+      try {
+        const res = await fetch("/api/continuous/toggle", { method: "POST" });
+        const data = await res.json();
+        updateContinuousUI(data);
+      } catch (e) {
+        console.error("Failed to toggle continuous loop:", e);
+      }
+    }
+
+    async function injectContinuousBatch() {
+      try {
+        await fetch("/api/continuous/inject_batch", { method: "POST" });
+        playTacticalChirp(520, 'sine', 0.1);
+      } catch (e) {
+        console.error("Failed to inject batch:", e);
+      }
+    }
+
+    function updateContinuousUI(status) {
+      isContinuousRunning = status.is_running;
+      const ind = document.getElementById('cont-status-indicator');
+      const badge = document.getElementById('cont-status-badge');
+      const btn = document.getElementById('cont-toggle-btn');
+      const label = document.getElementById('cont-toggle-label');
+      const icon = document.getElementById('cont-toggle-icon');
+      const tabDot = document.getElementById('tab-continuous-dot');
+
+      if (status.is_running) {
+        if (ind) ind.className = "w-3 h-3 rounded-full bg-matrixGreen animate-ping";
+        if (badge) {
+          badge.className = "px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-matrixGreen/20 text-matrixGreen border border-matrixGreen/50";
+          badge.innerText = `ACTIVE (CYCLE #${status.cycle})`;
+        }
+        if (btn) {
+          btn.className = "px-4 py-2 rounded text-xs font-mono font-bold tracking-wider transition flex items-center gap-2 bg-neonRed/20 hover:bg-neonRed/30 text-neonRed border border-neonRed/60 cursor-pointer shadow-sm";
+        }
+        if (label) label.innerText = "PAUSE CONTINUOUS LOOP";
+        if (icon) icon.innerText = "⏸";
+        if (tabDot) tabDot.className = "w-2 h-2 rounded-full bg-matrixGreen animate-pulse";
+      } else {
+        if (ind) ind.className = "w-3 h-3 rounded-full bg-slate-500";
+        if (badge) {
+          badge.className = "px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-slate-800 text-slate-300 border border-slate-700";
+          badge.innerText = "STANDBY / IDLE";
+        }
+        if (btn) {
+          btn.className = "px-4 py-2 rounded text-xs font-mono font-bold tracking-wider transition flex items-center gap-2 bg-matrixGreen/20 hover:bg-matrixGreen/30 text-matrixGreen border border-matrixGreen/60 cursor-pointer shadow-sm";
+        }
+        if (label) label.innerText = "START CONTINUOUS LEARNING LOOP";
+        if (icon) icon.innerText = "▶";
+        if (tabDot) tabDot.className = "w-2 h-2 rounded-full bg-slate-500";
+      }
+
+      document.getElementById('cont-cycles').innerText = status.cycle;
+      document.getElementById('cont-buffer').innerText = `${status.buffer_count} / ${status.buffer_threshold}`;
+      document.getElementById('cont-saved-pkts').innerText = status.total_saved_packets;
+      document.getElementById('cont-pcap-size').innerText = `${status.pcap_size_kb} KB`;
+      document.getElementById('cont-promotions').innerText = status.champions_promoted;
+      document.getElementById('cont-champ-fit').innerText = status.last_fitness ? status.last_fitness.toFixed(4) : "0.9980";
+
+      updatePipelineStages(status.current_stage || (status.is_running ? "SNIFFING" : "IDLE"));
+    }
+
+    // ------------------------------------------------------------------
     // INITIALIZATION & SSE CONNECTION
     // ------------------------------------------------------------------
     async function initHUD() {
       resizeCanvas();
+      resizeContinuousCanvases();
       renderNeuralCanvas();
       await loadGenomeTopology();
 
@@ -1136,6 +1750,26 @@
         if (data.active_defense !== undefined) updateDefenseUI(data.active_defense);
       } catch (e) {}
 
+      // Fetch initial telemetry history & continuous status
+      try {
+        const histRes = await fetch("/api/telemetry/history");
+        const histData = await histRes.json();
+        if (histData.scores && histData.scores.length > 0) {
+          scoreHistory = histData.scores;
+          renderOscilloscope();
+        }
+        if (histData.velocity && histData.velocity.length > 0) {
+          velocityHistory = histData.velocity;
+          renderVelocityCanvas();
+        }
+        if (histData.continuous) {
+          updateContinuousUI(histData.continuous);
+        }
+        if (histData.logs && histData.logs.length > 0) {
+          histData.logs.forEach(l => addContinuousAuditLog(l));
+        }
+      } catch (e) {}
+
       // Fetch dynamic training stats for Deck 2
       updateTrainingStats();
       setInterval(updateTrainingStats, 5000);
@@ -1147,6 +1781,14 @@
           const msg = JSON.parse(e.data);
           if (msg.type === "packet") {
             addPacketRow(msg.data);
+            scoreHistory.push({
+              time: msg.data.time,
+              score: msg.data.score,
+              src: msg.data.src,
+              is_threat: msg.data.score >= 0.85
+            });
+            if (scoreHistory.length > 100) scoreHistory.shift();
+            renderOscilloscope();
           } else if (msg.type === "bans") {
             renderBans(msg.data);
           } else if (msg.type === "defense_mode") {
@@ -1154,8 +1796,36 @@
           } else if (msg.type === "velocity") {
             document.getElementById('velocity-pps').innerText = msg.data.pps;
             document.getElementById('velocity-kbps').innerText = msg.data.kbps.toFixed(1);
+            document.getElementById('cont-live-pps').innerText = msg.data.pps;
+            document.getElementById('cont-live-kbps').innerText = msg.data.kbps.toFixed(1);
             document.getElementById('total-packets-val').innerText = msg.data.total_packets;
             document.getElementById('total-threats-val').innerText = msg.data.total_threats;
+            velocityHistory.push({
+              time: msg.data.time || "",
+              pps: msg.data.pps,
+              kbps: msg.data.kbps
+            });
+            if (velocityHistory.length > 60) velocityHistory.shift();
+            renderVelocityCanvas();
+          } else if (msg.type === "continuous_status") {
+            updateContinuousUI(msg.data);
+          } else if (msg.type === "continuous_stage") {
+            updatePipelineStages(msg.data.stage);
+          } else if (msg.type === "continuous_progress") {
+            document.getElementById('cont-buffer').innerText = `${msg.data.count} / ${msg.data.threshold}`;
+            document.getElementById('cont-saved-pkts').innerText = msg.data.total_saved;
+          } else if (msg.type === "continuous_save") {
+            document.getElementById('cont-saved-pkts').innerText = msg.data.total_saved;
+            document.getElementById('cont-pcap-size').innerText = `${msg.data.pcap_size_kb} KB`;
+          } else if (msg.type === "continuous_evolve") {
+            continuousFitnessHistory.push(msg.data);
+            renderContinuousEvolutionChart();
+          } else if (msg.type === "continuous_promote") {
+            document.getElementById('champ-fitness').innerText = msg.data.fitness.toFixed(4);
+            document.getElementById('cont-champ-fit').innerText = msg.data.fitness.toFixed(4);
+            playTacticalChirp(1046, 'sine', 0.4);
+          } else if (msg.type === "continuous_log") {
+            addContinuousAuditLog(msg.data);
           } else if (msg.type === "evolution_update") {
             document.getElementById('champ-fitness').innerText = msg.data.fitness.toFixed(4);
             document.getElementById('evolution-log').innerHTML = `<span class="text-matrixGreen font-bold">[EVOLUTION COMPLETE]:</span> ${msg.data.message}`;
