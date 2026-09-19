@@ -269,6 +269,85 @@
         </div>
       </div>
 
+      <!-- COUNCIL OF SPECIALISTS (MIXTURE OF EXPERTS - MoE) DELIBERATION PANEL -->
+      <div class="hud-box p-5 border border-laserCyan/30">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-laserCyan animate-pulse"></span>
+            <h2 class="text-xs font-bold font-display tracking-widest text-slate-200">SPECIALIST COUNCIL (MoE) ARBITER</h2>
+          </div>
+          <span id="council-mode-badge" class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-laserCyan/15 text-laserCyan border border-laserCyan/40">
+            3/3 SPECIALISTS ONLINE
+          </span>
+        </div>
+
+        <!-- Real-Time Council Opinion Bars -->
+        <div class="space-y-3 font-mono text-xs">
+          <!-- Specialist 1: Volumetric Vanguard -->
+          <div class="p-2.5 rounded bg-panelLight border border-panelBorder">
+            <div class="flex items-center justify-between text-[11px] mb-1">
+              <span class="flex items-center gap-1.5 text-laserCyan font-bold">
+                <span>⚡</span> VOLUMETRIC VANGUARD (Rates &amp; Floods)
+              </span>
+              <span id="council-score-vol" class="font-bold text-white">0.0000</span>
+            </div>
+            <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-700/50">
+              <div id="council-bar-vol" class="h-full bg-gradient-to-r from-laserCyan/50 to-laserCyan rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-[9px] text-textMuted mt-1">
+              <span>Inputs: 7-Dim (Rates, MTU, Window, SYN)</span>
+              <span id="council-vol-status" class="text-matrixGreen">NORMAL</span>
+            </div>
+          </div>
+
+          <!-- Specialist 2: Recon Inquisitor -->
+          <div class="p-2.5 rounded bg-panelLight border border-panelBorder">
+            <div class="flex items-center justify-between text-[11px] mb-1">
+              <span class="flex items-center gap-1.5 text-warningAmber font-bold">
+                <span>🔍</span> RECON INQUISITOR (Flags &amp; Scans)
+              </span>
+              <span id="council-score-rec" class="font-bold text-white">0.0000</span>
+            </div>
+            <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-700/50">
+              <div id="council-bar-rec" class="h-full bg-gradient-to-r from-warningAmber/50 to-warningAmber rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-[9px] text-textMuted mt-1">
+              <span>Inputs: 10-Dim (XMAS, NULL, SF, TTL Div, Ports)</span>
+              <span id="council-rec-status" class="text-matrixGreen">NORMAL</span>
+            </div>
+          </div>
+
+          <!-- Specialist 3: Deep-Payload Analyst -->
+          <div class="p-2.5 rounded bg-panelLight border border-panelBorder">
+            <div class="flex items-center justify-between text-[11px] mb-1">
+              <span class="flex items-center gap-1.5 text-purple-400 font-bold">
+                <span>🧠</span> DEEP-PAYLOAD ANALYST (Entropy &amp; C2)
+              </span>
+              <span id="council-score-pay" class="font-bold text-white">0.0000</span>
+            </div>
+            <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-700/50">
+              <div id="council-bar-pay" class="h-full bg-gradient-to-r from-purple-500/50 to-purple-400 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-[9px] text-textMuted mt-1">
+              <span>Inputs: 7-Dim (Shannon Entropy, Payload, Ports)</span>
+              <span id="council-pay-status" class="text-matrixGreen">NORMAL</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Consensus Readout Footer -->
+        <div class="mt-3 pt-2.5 border-t border-panelBorder/70 flex items-center justify-between text-[10px] font-mono">
+          <div>
+            <span class="text-textMuted">DECISIVE EXPERT:</span>
+            <span id="council-leading-expert" class="text-white font-bold ml-1">NONE</span>
+          </div>
+          <div>
+            <span class="text-textMuted">CONSENSUS RULE:</span>
+            <span id="council-consensus-rule" class="text-laserCyan ml-1">DISJUNCTION</span>
+          </div>
+        </div>
+      </div>
+
       <!-- ATTACKER FORENSIC DOSSIER & GEOLOCATION (EXTREME DEPTH) -->
       <div class="hud-box p-5">
         <div class="flex items-center justify-between mb-3">
@@ -1264,6 +1343,60 @@
       }
     }
 
+    function updateCouncilMeters(council) {
+      if (!council) return;
+      const brk = council.breakdown || {};
+      const vol = brk.volumetric || 0;
+      const rec = brk.recon || 0;
+      const pay = brk.payload || 0;
+
+      const volEl = document.getElementById('council-score-vol');
+      const recEl = document.getElementById('council-score-rec');
+      const payEl = document.getElementById('council-score-pay');
+      const barVol = document.getElementById('council-bar-vol');
+      const barRec = document.getElementById('council-bar-rec');
+      const barPay = document.getElementById('council-bar-pay');
+      const statVol = document.getElementById('council-vol-status');
+      const statRec = document.getElementById('council-rec-status');
+      const statPay = document.getElementById('council-pay-status');
+
+      if (volEl) volEl.innerText = vol.toFixed(4);
+      if (recEl) recEl.innerText = rec.toFixed(4);
+      if (payEl) payEl.innerText = pay.toFixed(4);
+
+      if (barVol) barVol.style.width = `${Math.min(100, Math.round(vol * 100))}%`;
+      if (barRec) barRec.style.width = `${Math.min(100, Math.round(rec * 100))}%`;
+      if (barPay) barPay.style.width = `${Math.min(100, Math.round(pay * 100))}%`;
+
+      if (statVol) {
+        statVol.innerText = vol >= 0.5 ? 'HOSTILE FLOOD' : 'NORMAL';
+        statVol.className = vol >= 0.5 ? 'text-neonRed font-bold' : 'text-matrixGreen';
+      }
+      if (statRec) {
+        statRec.innerText = rec >= 0.5 ? 'STEALTH SCAN' : 'NORMAL';
+        statRec.className = rec >= 0.5 ? 'text-neonRed font-bold' : 'text-matrixGreen';
+      }
+      if (statPay) {
+        statPay.innerText = pay >= 0.5 ? 'MALICIOUS PAYLOAD' : 'NORMAL';
+        statPay.className = pay >= 0.5 ? 'text-neonRed font-bold' : 'text-matrixGreen';
+      }
+
+      const expEl = document.getElementById('council-leading-expert');
+      const ruleEl = document.getElementById('council-consensus-rule');
+      const modeBadge = document.getElementById('council-mode-badge');
+
+      if (expEl && council.leading_expert) {
+        expEl.innerText = council.leading_expert.replace(/_/g, ' ');
+        expEl.className = (vol >= 0.5 || rec >= 0.5 || pay >= 0.5) ? 'text-neonRed font-bold ml-1' : 'text-white font-bold ml-1';
+      }
+      if (ruleEl && council.consensus_rule) {
+        ruleEl.innerText = council.consensus_rule;
+      }
+      if (modeBadge && council.mode) {
+        modeBadge.innerText = council.mode === 'MOE_COUNCIL' ? '3/3 SPECIALISTS ARBITRATING' : council.mode;
+      }
+    }
+
     function renderBans(bans) {
       activeBans = bans || {};
       const tbody = document.getElementById('bans-table-body');
@@ -1338,6 +1471,7 @@
       // Update HUD Gauges & Dossier
       updateSpeedometer(pkt.score);
       updateAttackerDossier(pkt);
+      if (pkt.council) updateCouncilMeters(pkt.council);
 
       // Update Input Sensors for Neural Topology
       if (pkt.features) {
@@ -1748,6 +1882,7 @@
         if (data.bans) renderBans(data.bans);
         if (data.live_sniffing !== undefined) updateCaptureUI(data.live_sniffing);
         if (data.active_defense !== undefined) updateDefenseUI(data.active_defense);
+        if (data.council) updateCouncilMeters(data.council);
       } catch (e) {}
 
       // Fetch initial telemetry history & continuous status

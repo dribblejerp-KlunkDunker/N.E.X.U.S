@@ -90,9 +90,19 @@ def build_comprehensive_corpus(base_dir: str = ".", live_capture_count: int = 15
         sport = random.randint(32768, 65535)
         ttl = random.choice([64, 128])
         win = random.choice([14600, 29200, 58400, 64240, 65535])
-        # Legitimate payload
-        payload_sizes = [0, 64, 256, 512, 1200, 1420]
-        load = b"GET /watch?v=stream HTTP/1.1\r\nHost: cdn.net\r\n\r\n" + b"\x00" * random.choice(payload_sizes)
+        # Legitimate diverse payloads (empty, JSON, HTML, and streaming chunks)
+        payload_type = random.choice(["empty", "http_json", "media_stream", "tls_record"])
+        if payload_type == "empty":
+            load = b""
+        elif payload_type == "http_json":
+            json_body = b'{"status":"ok","user_id":12891,"stream_id":"vid_994","buffer_ms":250,"chunks":[1,2,3]}'
+            load = b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 95\r\n\r\n" + json_body
+        elif payload_type == "media_stream":
+            # Media stream chunk (entropy ~0.55 - 0.65)
+            load = b"H264_NAL_CONTAINER_CHUNK_" * 15 + bytes(range(50)) * random.randint(4, 12)
+        else:
+            # TLS 1.3 Application Record (structured encrypted record)
+            load = b"\x17\x03\x03\x04\x00" + b"TLS_ENC_APP_DATA_" * 12 + bytes(range(40)) * random.randint(4, 10)
 
         # Mix of handshakes, ACKs, and data transfers
         flags = random.choice(["S", "A", "PA", "FA"])

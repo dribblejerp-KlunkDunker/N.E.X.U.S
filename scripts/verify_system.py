@@ -203,6 +203,68 @@ def run_diagnostics():
     print_check("Dashboard UI Template", os.path.exists(ui_html), ui_html)
 
     # -------------------------------------------------------------
+    # 7. SPECIALIST COUNCIL (MIXTURE OF EXPERTS - MoE) PLANE
+    # -------------------------------------------------------------
+    print_header("7. Specialist Council (Mixture of Experts - MoE)")
+    council_configs = [
+        ("config/config-council-volumetric.txt", "Volumetric Config (7-D)", 7),
+        ("config/config-council-recon.txt", "Recon Config (10-D)", 10),
+        ("config/config-council-payload.txt", "Deep-Payload Config (7-D)", 7)
+    ]
+    for c_path, label, exp_in in council_configs:
+        exists = os.path.exists(c_path)
+        if exists:
+            try:
+                import neat
+                cfg = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, c_path)
+                in_count = len(cfg.genome_config.input_keys)
+                print_check(label, in_count == exp_in, f"{in_count}-D inputs")
+                if in_count != exp_in:
+                    all_passed = False
+            except Exception as e:
+                print_check(label, False, str(e))
+                all_passed = False
+        else:
+            print_check(label, False, f"Missing {c_path}")
+            all_passed = False
+
+    council_models = [
+        ("genomes/council_volumetric.pkl", "Volumetric Vanguard Champion"),
+        ("genomes/council_recon.pkl", "Recon Inquisitor Champion"),
+        ("genomes/council_payload.pkl", "Deep-Payload Analyst Champion")
+    ]
+    for m_path, label in council_models:
+        exists = os.path.exists(m_path)
+        if exists:
+            try:
+                import pickle
+                with open(m_path, "rb") as f:
+                    data = pickle.load(f)
+                fit = getattr(data["genome"], "fitness", 0.0)
+                print_check(label, True, f"Fitness: {fit:.4f}")
+            except Exception as e:
+                print_check(label, False, f"Corrupted: {e}")
+                all_passed = False
+        else:
+            print_check(label, False, f"Missing {m_path}")
+            all_passed = False
+
+    manifest_path = "genomes/council_manifest.json"
+    print_check("Council Manifest JSON", os.path.exists(manifest_path), manifest_path)
+
+    # Test Council Arbiter
+    try:
+        from council_arbiter import CouncilArbiter
+        arbiter = CouncilArbiter()
+        arbiter_ok = (arbiter.active_mode == "MOE_COUNCIL")
+        print_check("Council Arbiter Engine", arbiter_ok, f"Mode: {arbiter.active_mode}")
+        if not arbiter_ok:
+            all_passed = False
+    except Exception as e:
+        print_check("Council Arbiter Engine", False, str(e))
+        all_passed = False
+
+    # -------------------------------------------------------------
     # FINAL VERDICT
     # -------------------------------------------------------------
     print(f"\n{BOLD}{CYAN}================================================================{RESET}")

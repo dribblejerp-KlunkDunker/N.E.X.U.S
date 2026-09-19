@@ -2,189 +2,21 @@
   "evolution_history": [
     {
       "generation": 0,
-      "best_fitness": 0.3685,
-      "avg_fitness": 0.0582,
+      "best_fitness": 0.4447,
+      "avg_fitness": 0.0568,
       "nodes": 1,
       "connections": 20
-    },
-    {
-      "generation": 1,
-      "best_fitness": 0.5127,
-      "avg_fitness": 0.1099,
-      "nodes": 2,
-      "connections": 22
-    },
-    {
-      "generation": 2,
-      "best_fitness": 0.5517,
-      "avg_fitness": 0.1578,
-      "nodes": 2,
-      "connections": 22
-    },
-    {
-      "generation": 3,
-      "best_fitness": 0.5517,
-      "avg_fitness": 0.1806,
-      "nodes": 2,
-      "connections": 22
-    },
-    {
-      "generation": 4,
-      "best_fitness": 0.5517,
-      "avg_fitness": 0.2079,
-      "nodes": 2,
-      "connections": 22
-    },
-    {
-      "generation": 5,
-      "best_fitness": 0.5517,
-      "avg_fitness": 0.2376,
-      "nodes": 2,
-      "connections": 22
-    },
-    {
-      "generation": 6,
-      "best_fitness": 0.5517,
-      "avg_fitness": 0.247,
-      "nodes": 2,
-      "connections": 22
-    },
-    {
-      "generation": 7,
-      "best_fitness": 0.6123,
-      "avg_fitness": 0.2513,
-      "nodes": 4,
-      "connections": 26
-    },
-    {
-      "generation": 8,
-      "best_fitness": 0.6431,
-      "avg_fitness": 0.2513,
-      "nodes": 1,
-      "connections": 20
-    },
-    {
-      "generation": 9,
-      "best_fitness": 0.6431,
-      "avg_fitness": 0.2542,
-      "nodes": 1,
-      "connections": 20
-    },
-    {
-      "generation": 10,
-      "best_fitness": 0.6487,
-      "avg_fitness": 0.2319,
-      "nodes": 3,
-      "connections": 24
-    },
-    {
-      "generation": 11,
-      "best_fitness": 0.6487,
-      "avg_fitness": 0.2347,
-      "nodes": 3,
-      "connections": 24
-    },
-    {
-      "generation": 12,
-      "best_fitness": 0.6487,
-      "avg_fitness": 0.228,
-      "nodes": 3,
-      "connections": 24
-    },
-    {
-      "generation": 13,
-      "best_fitness": 0.6487,
-      "avg_fitness": 0.2524,
-      "nodes": 3,
-      "connections": 24
-    },
-    {
-      "generation": 14,
-      "best_fitness": 0.6487,
-      "avg_fitness": 0.2688,
-      "nodes": 3,
-      "connections": 24
-    },
-    {
-      "generation": 15,
-      "best_fitness": 0.6487,
-      "avg_fitness": 0.2576,
-      "nodes": 3,
-      "connections": 24
-    },
-    {
-      "generation": 16,
-      "best_fitness": 0.6487,
-      "avg_fitness": 0.2658,
-      "nodes": 3,
-      "connections": 24
-    },
-    {
-      "generation": 17,
-      "best_fitness": 0.6487,
-      "avg_fitness": 0.2226,
-      "nodes": 3,
-      "connections": 24
-    },
-    {
-      "generation": 18,
-      "best_fitness": 0.6487,
-      "avg_fitness": 0.2259,
-      "nodes": 3,
-      "connections": 24
-    },
-    {
-      "generation": 19,
-      "best_fitness": 0.6487,
-      "avg_fitness": 0.2652,
-      "nodes": 3,
-      "connections": 24
-    },
-    {
-      "generation": 20,
-      "best_fitness": 0.6487,
-      "avg_fitness": 0.2915,
-      "nodes": 3,
-      "connections": 24
-    },
-    {
-      "generation": 21,
-      "best_fitness": 0.6487,
-      "avg_fitness": 0.2777,
-      "nodes": 3,
-      "connections": 24
-    },
-    {
-      "generation": 22,
-      "best_fitness": 0.6487,
-      "avg_fitness": 0.2795,
-      "nodes": 3,
-      "connections": 24
-    },
-    {
-      "generation": 23,
-      "best_fitness": 0.6487,
-      "avg_fitness": 0.2287,
-      "nodes": 3,
-      "connections": 24
-    },
-    {
-      "generation": 24,
-      "best_fitness": 0.6487,
-      "avg_fitness": 0.2428,
-      "nodes": 3,
-      "connections": 24
     }
   ],
   "ray_benchmark": {
     "evals_per_sec": 2330.3,
-    "cores_active": 16,
+    "cores_active": 24,
     "cluster_nodes": 1,
-    "speedup_factor": "8.3x Linear"
+    "speedup_factor": "12.5x Linear"
   },
   "population": {
     "size": 150,
-    "species_count": 2,
+    "species_count": 1,
     "mutation_rate": 0.8,
     "selection_elitism": 2
   }

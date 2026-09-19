@@ -1,0 +1,44 @@
+{
+  "timestamp": "2026-09-19T16:18:43.592324",
+  "total_duration_seconds": 5.52,
+  "cpus_utilized": 24,
+  "generations_per_specialist": 20,
+  "specialists": {
+    "volumetric": {
+      "role": "volumetric",
+      "name": "Volumetric Vanguard",
+      "fitness": 0.8166468293368482,
+      "nodes": 2,
+      "connections": 9,
+      "inputs": 7,
+      "fp_rate": 0.0711743772241993,
+      "tp_rate": 1.0,
+      "duration_seconds": 2.29,
+      "path": "genomes/council_volumetric.pkl"
+    },
+    "recon": {
+      "role": "recon",
+      "name": "Recon Inquisitor",
+      "fitness": 0.7331990175227777,
+      "nodes": 1,
+      "connections": 9,
+      "inputs": 10,
+      "fp_rate": 0.0,
+      "tp_rate": 1.0,
+      "duration_seconds": 1.41,
+      "path": "genomes/council_recon.pkl"
+    },
+    "payload": {
+      "role": "payload",
+      "name": "Deep-Payload Analyst",
+      "fitness": 0.6138564760485247,
+      "nodes": 2,
+      "connections": 8,
+      "inputs": 7,
+      "fp_rate": 0.046263345195729534,
+      "tp_rate": 0.8512720156555773,
+      "duration_seconds": 1.15,
+      "path": "genomes/council_payload.pkl"
+    }
+  }
+}

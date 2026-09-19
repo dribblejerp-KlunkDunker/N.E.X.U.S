@@ -109,6 +109,19 @@ try:
 except Exception as e:
     print(f"[NEXUS Dashboard] Warning: Could not load champion genome: {e}")
 
+# Initialize Specialist Council Arbiter (MoE)
+from council_arbiter import CouncilArbiter
+COUNCIL_ARBITER = CouncilArbiter()
+SHARED_STATE["council_mode"] = COUNCIL_ARBITER.active_mode
+SHARED_STATE["council_specialists"] = COUNCIL_ARBITER.specialist_fitnesses
+SHARED_STATE["last_council_breakdown"] = {
+    "volumetric": 0.0,
+    "recon": 0.0,
+    "payload": 0.0,
+    "leading_expert": "NONE",
+    "consensus_rule": "NONE"
+}
+
 EXTRACTOR = PacketFeatureExtractor()
 TRACKER = PassiveTcpFlowTracker(timeout_seconds=120.0, history_size=8)
 
@@ -664,19 +677,27 @@ def process_packet(pkt):
     feats_20 = EXTRACTOR.extract(pkt, extended=True)
     feats_12 = feats_20[:12]
 
-    # 2. Neural anomaly scoring (dynamically supports 20-D or 12-D champions)
-    if NET:
-        num_in = len(CONFIG.genome_config.input_keys) if CONFIG else 20
-        inp = feats_20 if num_in == 20 else feats_12
-        score = float(NET.activate(inp)[0])
-    else:
-        score = 0.0
+    # 2. Specialist Council MoE Anomaly Scoring (with monolithic fallback)
+    council_res = COUNCIL_ARBITER.evaluate(feats_20)
+    score = float(council_res["score"])
+    leading_expert = council_res["leading_expert"]
+    council_breakdown = council_res["breakdown"]
 
     SHARED_STATE["packets_evaluated"] += 1
     SHARED_STATE["last_score"] = score
+    SHARED_STATE["council_mode"] = COUNCIL_ARBITER.active_mode
+    SHARED_STATE["last_council_breakdown"] = {
+        "volumetric": council_breakdown.get("volumetric", 0.0),
+        "recon": council_breakdown.get("recon", 0.0),
+        "payload": council_breakdown.get("payload", 0.0),
+        "leading_expert": leading_expert,
+        "consensus_rule": council_res.get("consensus_rule", "")
+    }
 
     # 3. Attacker intelligence enrichment & MITRE ATT&CK Mapping
     intel = resolve_ip_intel(src_ip, ttl=ttl, window=window, dport=dport)
+    intel["leading_expert"] = leading_expert
+    intel["council_breakdown"] = council_breakdown
     mitre = classify_mitre_technique(dport, flags_str, feats_20[12], score, intel, raw_payload)
     intel["mitre"] = mitre
 
@@ -748,7 +769,13 @@ def process_packet(pkt):
         "hex_dump": hex_preview,
         "ascii_dump": ascii_preview,
         "intel": intel,
-        "features": feat_dict
+        "features": feat_dict,
+        "council": {
+            "mode": COUNCIL_ARBITER.active_mode,
+            "leading_expert": leading_expert,
+            "breakdown": council_breakdown,
+            "consensus_rule": council_res.get("consensus_rule", "")
+        }
     }
 
     # 7. Real-Time Oscilloscope & Continuous Engine Ingestion
@@ -757,7 +784,9 @@ def process_packet(pkt):
         "src": src_ip,
         "score": round(score, 4),
         "flags": flags_str,
-        "is_threat": bool(score >= 0.85)
+        "is_threat": bool(score >= 0.85),
+        "leading_expert": leading_expert,
+        "council": council_breakdown
     }
     SCORE_HISTORY.append(score_item)
     CONTINUOUS_MANAGER.feed_packet(pkt, feats_20, score)
@@ -849,7 +878,30 @@ async def get_status():
         "last_score": SHARED_STATE["last_score"],
         "live_sniffing": SNIFFER_RUNNING,
         "pps": SHARED_STATE["current_pps"],
-        "kbps": SHARED_STATE["current_kbps"]
+        "kbps": SHARED_STATE["current_kbps"],
+        "council": {
+            "mode": COUNCIL_ARBITER.active_mode,
+            "specialists": COUNCIL_ARBITER.specialist_fitnesses,
+            "last_breakdown": SHARED_STATE.get("last_council_breakdown", {})
+        }
+    }
+
+
+@app.get("/api/council/status")
+async def get_council_status():
+    manifest = {}
+    manifest_file = "genomes/council_manifest.json"
+    if os.path.exists(manifest_file):
+        try:
+            with open(manifest_file, "r") as f:
+                manifest = json.load(f)
+        except Exception:
+            pass
+    return {
+        "mode": COUNCIL_ARBITER.active_mode,
+        "specialists": COUNCIL_ARBITER.specialist_fitnesses,
+        "last_breakdown": SHARED_STATE.get("last_council_breakdown", {}),
+        "manifest": manifest
     }
 
 
