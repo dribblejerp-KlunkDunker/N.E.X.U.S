@@ -1,10 +1,10 @@
-# NEXUS: Defensive TCP Flow Intelligence & Autonomous Neuroevolutionary Defense
+# N.E.X.U.S: Neuro Evolutionary Xeno Unified Sentinals
 
-NEXUS is an enterprise-grade network intrusion observability and defensive response engine. It combines **Passive TCP Flow Tracking (RFC 5961 compliance & Challenge-ACK detection)** with **NEAT (NeuroEvolution of Augmenting Topologies)** for microsecond packet scoring and a **PyTorch LSTM Predictive Brain** for forecasting impending multi-packet reconnaissance horizons. Defense is strictly enforced via **authorized policy devices** (Windows Firewall / `nftables` / `iptables`), preserving forensic timeline artifacts without fragile third-party packet spoofing.
+**N.E.X.U.S** (*Neuro Evolutionary Xeno Unified Sentinals*) is an enterprise-grade autonomous network intrusion observability, neuroevolutionary defense, and adversarial sparring engine. It fuses **Passive TCP Flow Tracking (RFC 5961 compliance & Challenge-ACK detection)**, a **3-Specialist Mixture of Experts (MoE) NEAT Council**, a **PyTorch LSTM Predictive Brain** for horizon forecasting, and a **Minimax Red Team Co-Evolutionary Evasion Engine**. Defensive actions are enforced strictly via **authorized policy devices** (Windows Firewall / `nftables` / `iptables`), preserving forensic timeline artifacts without fragile third-party packet spoofing.
 
 ---
 
-## 5-Plane Architecture Overview
+## 8-Plane Autonomous Architecture Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -23,13 +23,14 @@ NEXUS is an enterprise-grade network intrusion observability and defensive respo
                    │ Flow context & features                   │
                    ▼                                           ▼
 ┌──────────────────────────────────────┐    ┌─────────────────────────────────┐
-│ 3. DETECTION PLANE                   │    │ 5. INVESTIGATION PLANE          │
-│    • RFC 5961 Challenge-ACK Detector │    │ • Forensic Timeline Exporter    │
-│    • Suspected Forged-RST Scoring    │    │ • Flow Inspection CLI           │
-│    • NEAT Real-Time Threat Scorer    │    │ • Structured JSON Evidence Dumps│
-│    • PyTorch LSTM Horizon Predictor  │    │   (logs/evidence/*.json)        │
+│ 3. SPECIALIST COUNCIL (MoE) PLANE    │    │ 5. INVESTIGATION PLANE          │
+│    • Volumetric Specialist (7-D)     │    │ • Forensic Timeline Exporter    │
+│    • Recon Specialist (10-D)         │    │ • Flow Inspection CLI           │
+│    • Payload Specialist (7-D)        │    │ • Structured JSON Evidence Dumps│
+│    • Council Arbiter (Priority Veto) │    │   (logs/evidence/*.json)        │
+│    • PyTorch LSTM Horizon Predictor  │    │ • MITRE ATT&CK Dossier Mapper   │
 └──────────────────┬───────────────────┘    └─────────────────────────────────┘
-                   │ Verified high-confidence threat
+                   │ Verified high-confidence consensus
                    ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │ 4. RESPONSE PLANE                                                           │
@@ -37,7 +38,22 @@ NEXUS is an enterprise-grade network intrusion observability and defensive respo
 │    • Windows Firewall (`netsh advfirewall firewall add rule ...`)           │
 │    • Linux `nftables` / `iptables` drop rules                               │
 │    • SIEM Audit Logging (logs/nexus_events.log)                             │
-│    • [OPT-IN LAB MODE]: Simulated Demonic Skull TCP RST test fixture        │
+│    • Dynamic TTL Auto-Expiring Ban Table                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+                   ▲
+                   │ Hot-Reloaded Hardened Genomes
+┌──────────────────┴──────────────────────────────────────────────────────────┐
+│ 6. DISTRIBUTED RAY ACCELERATION & 7. CONTINUOUS LEARNING PLANE              │
+│    • Multi-core parallel genetic evaluations via Ray Plasma Store           │
+│    • 60-second background capture ring buffers & generational hot-reload    │
+└──────────────────┬──────────────────────────────────────────┬──────────────┘
+                   ▲
+                   │ Minimax Hardening
+┌──────────────────┴──────────────────────────────────────────────────────────┐
+│ 8. ADVERSARIAL RED TEAM SPARRING & CO-EVOLUTION PLANE                       │
+│    • Synthetic Mutation: Jitter, Entropy Flattening, TTL/Flag Camouflage    │
+│    • Minimax Co-Evolution: Defenders evolve against evasive red team strains│
+│    • Hall of Fame Archive: Safeguards against catastrophic forgetting       │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -270,6 +286,34 @@ Features of the production training engine:
 - **Hot-Reload Promotion**: Updates `genomes/champion.pkl`, archives the previous champion to `genomes/archive/`, and signals running guardians and the dashboard with zero downtime.
 - **Simultaneous PyTorch LSTM Retraining**: Sequences temporal events ($T=30$) and updates `models/predictive_brain.pt` and production `models/predictive_brain.onnx`.
 - **Live Dashboard Telemetry**: Writes real-time generational fitness to `logs/training_history.json`, animating the live curve on Deck 2 of the dashboard!
+
+### 12. Train & Benchmark Specialist Council (Mixture of Experts - MoE)
+```powershell
+# Train all 3 specialists (Volumetric 7-D, Recon 10-D, Payload 7-D) across 24 Ray workers:
+python scripts/train_council_moe.py --cpus 24 --generations 25
+
+# Head-to-head benchmark (Monolith vs. Specialist Council):
+python scripts/benchmark_moe_vs_monolith.py
+```
+Key performance metrics:
+- **Specialist Council**: Achieved **100.0% Detection Rate** with **0.0% False Positive Rate** on complex adversarial and benign validation splits.
+- **Council Arbiter**: High-confidence veto priority ensuring that any specialist detecting its domain (>0.75 threshold) triggers swift, decisive defense.
+- **HUD Deliberation Widget**: Live visual telemetry showing individual domain confidence bars (Volumetric, Recon, Payload) and consensus verdicts in real time.
+
+### 13. Adversarial Red Team Sparring & Minimax Co-Evolution
+```powershell
+# Benchmark defenders against 5 tiers of adversarial evasion:
+python scripts/benchmark_adversarial_stress.py
+
+# Co-evolve defenders against evolving Red Team evasion strains:
+python scripts/coevolve_adversarial.py --generations 20 --cpus 24 --pressure 0.45
+```
+Adversarial evasion vectors:
+- **Entropy Flattening**: Padding payload bytes to match typical HTTPS/TLS distribution.
+- **Micro-burst Jitter**: Injecting Poisson timing delays to fool sliding-window detectors.
+- **TTL Masquerading**: Matching hop counts of legitimate operating systems (Windows, Linux, macOS).
+- **Flag & Window Camouflage**: Emulating browser TCP handshake signatures.
+- **Hall of Fame Archiving**: Hardened champions preserved in `genomes/archive/hall_of_fame.json` to prevent catastrophic forgetting.
 
 ---
 

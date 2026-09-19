@@ -196,6 +196,16 @@
         <button onclick="triggerSimulatedAttack('clean')" title="Inject Legitimate Clean Web Browsing Session" class="px-2.5 py-1 rounded text-xs font-bold font-mono bg-matrixGreen/20 hover:bg-matrixGreen/30 border border-matrixGreen/60 text-matrixGreen transition cursor-pointer">
           + CLEAN WEB
         </button>
+        <!-- Red Team Adversarial Evasion Triggers -->
+        <button onclick="triggerSimulatedAttack('evasive_c2')" title="Simulate Adversarial C2 Beacon Camouflaged in Structured JSON" class="px-2 py-1 rounded text-xs font-bold font-mono bg-red-950/60 hover:bg-red-900/80 border border-red-500/80 text-red-300 transition cursor-pointer">
+          🔴 EVASIVE C2
+        </button>
+        <button onclick="triggerSimulatedAttack('evasive_flood')" title="Simulate Sub-Threshold Jittered Flood with Standard Window Scaling" class="px-2 py-1 rounded text-xs font-bold font-mono bg-red-950/60 hover:bg-red-900/80 border border-red-500/80 text-red-300 transition cursor-pointer">
+          🔴 JITTER FLOOD
+        </button>
+        <button onclick="triggerSimulatedAttack('evasive_scan')" title="Simulate Stealth Probe with Normalized Linux TTL (64)" class="px-2 py-1 rounded text-xs font-bold font-mono bg-red-950/60 hover:bg-red-900/80 border border-red-500/80 text-red-300 transition cursor-pointer">
+          🔴 STEALTH CAMO
+        </button>
       </div>
 
     </div>

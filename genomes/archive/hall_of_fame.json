@@ -1,10 +1,7 @@
 {
   "timestamp": "2026-09-19T17:06:10.743781",
-  "total_duration_seconds": 7.34,
-  "cpus_utilized": 24,
-  "generations_per_specialist": 20,
-  "adversarial_hardened": true,
-  "evasion_sparring_pressure": "45%",
+  "generations": 20,
+  "evasion_ratio": 0.45,
   "specialists": {
     "volumetric": {
       "role": "volumetric",

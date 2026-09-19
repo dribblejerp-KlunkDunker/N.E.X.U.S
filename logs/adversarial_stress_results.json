@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-09-19T17:04:07.913461",
+  "tiers": [
+    {
+      "tier": "Tier 0: Standard Unmutated Baseline",
+      "strategy": "none",
+      "intensity": 0.0,
+      "monolith_detection": 99.93,
+      "moe_detection": 100.0,
+      "dominant_expert": "DEEP_PAYLOAD_ANALYST"
+    },
+    {
+      "tier": "Tier 1: Timing Jitter & Rate Shaping",
+      "strategy": "jitter",
+      "intensity": 0.85,
+      "monolith_detection": 56.13,
+      "moe_detection": 100.0,
+      "dominant_expert": "DEEP_PAYLOAD_ANALYST"
+    },
+    {
+      "tier": "Tier 2: TTL Masquerading & OS Camouflage",
+      "strategy": "ttl",
+      "intensity": 1.0,
+      "monolith_detection": 99.93,
+      "moe_detection": 91.7,
+      "dominant_expert": "DEEP_PAYLOAD_ANALYST"
+    },
+    {
+      "tier": "Tier 3: Entropy Flattening & JSON Padding",
+      "strategy": "entropy",
+      "intensity": 0.8,
+      "monolith_detection": 99.93,
+      "moe_detection": 83.33,
+      "dominant_expert": "DEEP_PAYLOAD_ANALYST"
+    },
+    {
+      "tier": "Tier 4: Blended Full-Spectrum Evasion",
+      "strategy": "full",
+      "intensity": 0.9,
+      "monolith_detection": 79.83,
+      "moe_detection": 75.03,
+      "dominant_expert": "DEEP_PAYLOAD_ANALYST"
+    }
+  ],
+  "monolith_drop": 20.1,
+  "moe_drop": 24.97
+}

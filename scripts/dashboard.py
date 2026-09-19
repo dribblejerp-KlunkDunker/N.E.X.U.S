@@ -111,7 +111,9 @@ except Exception as e:
 
 # Initialize Specialist Council Arbiter (MoE)
 from council_arbiter import CouncilArbiter
+from evasion_engine import AdversarialEvasionEngine
 COUNCIL_ARBITER = CouncilArbiter()
+EVASION_ENGINE = AdversarialEvasionEngine()
 SHARED_STATE["council_mode"] = COUNCIL_ARBITER.active_mode
 SHARED_STATE["council_specialists"] = COUNCIL_ARBITER.specialist_fitnesses
 SHARED_STATE["last_council_breakdown"] = {
@@ -1188,6 +1190,9 @@ async def simulate_attack(attack_type: str):
         src_ip = "198.51.100.48"
         pkt = Ether()/IP(src=src_ip, dst="192.168.1.50", ttl=32)/\
               TCP(sport=random.randint(1024, 65535), dport=445, flags="S", window=8192)
+    elif attack_type in ("evasive_c2", "evasive_flood", "evasive_scan", "evasive_exfil"):
+        # Red Team Adversarial Evasion Synthetic Probe
+        pkt, _ = EVASION_ENGINE.generate_evasive_packet(attack_type)
     else:
         # Clean baseline web browsing session
         src_ip = "192.168.1.50"
