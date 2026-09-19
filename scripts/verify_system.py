@@ -7,8 +7,10 @@ models, network interfaces, and web dashboard readiness.
 import os
 import sys
 import time
+import json
 import subprocess
 from datetime import datetime
+import numpy as np
 
 # Set color codes for terminal output
 GREEN = "\033[92m"
@@ -263,6 +265,72 @@ def run_diagnostics():
     except Exception as e:
         print_check("Council Arbiter Engine", False, str(e))
         all_passed = False
+
+    # -------------------------------------------------------------
+    # 8. ADVERSARIAL EVASION & CO-EVOLUTION PLANE
+    # -------------------------------------------------------------
+    print_header("8. Adversarial Red Team Sparring & Co-Evolution Engine")
+    try:
+        from evasion_engine import AdversarialEvasionEngine
+        ev_engine = AdversarialEvasionEngine()
+
+        # Test mutation operators on a dummy 20-D vector
+        test_vec = np.zeros(20, dtype=np.float32)
+        test_vec[0] = 0.5   # packet_len
+        test_vec[11] = 0.95 # stream_rate
+        test_vec[12] = 0.95 # payload_entropy
+        test_vec[19] = 0.85 # ttl_divergence
+
+        mut_entropy = ev_engine.mutate_vector(test_vec, "entropy", intensity=0.8)
+        mut_jitter = ev_engine.mutate_vector(test_vec, "jitter", intensity=0.8)
+        mut_ttl = ev_engine.mutate_vector(test_vec, "ttl", intensity=0.8)
+        mut_full = ev_engine.mutate_vector(test_vec, "full", intensity=0.9)
+
+        entropy_ok = (mut_entropy[12] < test_vec[12])
+        jitter_ok = (mut_jitter[11] < test_vec[11])
+        ttl_ok = (mut_ttl[19] < test_vec[19])
+
+        print_check("Synthetic Mutation Operators", (entropy_ok and jitter_ok and ttl_ok), "Entropy, Jitter, TTL, & Camouflage Verified")
+        if not (entropy_ok and jitter_ok and ttl_ok):
+            all_passed = False
+
+        # Test evasive packet generation
+        pkt, desc = ev_engine.generate_evasive_packet("evasive_c2")
+        pkt_ok = (pkt is not None and len(desc) > 0)
+        print_check("Adversarial Packet Synthesis", pkt_ok, f"Signature: {desc}")
+        if not pkt_ok:
+            all_passed = False
+
+    except Exception as e:
+        print_check("Adversarial Evasion Engine", False, str(e))
+        all_passed = False
+
+    # Check Hall of Fame Archive
+    hof_path = "genomes/archive/hall_of_fame.json"
+    if os.path.exists(hof_path):
+        try:
+            with open(hof_path, "r", encoding="utf-8") as f:
+                hof_data = json.load(f)
+            champs = hof_data.get("specialists", {})
+            champ_count = len(champs)
+            print_check("Adversarial Hall of Fame", champ_count > 0, f"{champ_count} Hardened Specialists Stored")
+            if champ_count == 0:
+                all_passed = False
+        except Exception as e:
+            print_check("Adversarial Hall of Fame", False, f"Corrupt: {e}")
+            all_passed = False
+    else:
+        print_check("Adversarial Hall of Fame", False, f"Missing {hof_path}")
+        all_passed = False
+
+    # Check benchmark and co-evolution suites
+    bench_script = "scripts/benchmark_adversarial_stress.py"
+    coevolve_script = "scripts/coevolve_adversarial.py"
+    print_check("5-Tier Adversarial Stress Suite", os.path.exists(bench_script), bench_script)
+    print_check("Minimax Co-Evolution Engine", os.path.exists(coevolve_script), coevolve_script)
+
+    stress_res_path = "logs/adversarial_stress_results.json"
+    print_check("Adversarial Benchmark Telemetry", os.path.exists(stress_res_path), stress_res_path)
 
     # -------------------------------------------------------------
     # FINAL VERDICT

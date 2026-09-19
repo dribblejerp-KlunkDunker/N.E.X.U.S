@@ -907,6 +907,56 @@ async def get_council_status():
     }
 
 
+# --------------------------------------------------------------------
+# ADVERSARIAL RED TEAM SPARRING & STRESS TEST API
+# --------------------------------------------------------------------
+@app.get("/api/adversary/stats")
+async def get_adversary_stats():
+    """Returns the latest benchmark stress results and Hall of Fame status."""
+    results = {}
+    res_path = "logs/adversarial_stress_results.json"
+    if os.path.exists(res_path):
+        try:
+            with open(res_path, "r", encoding="utf-8") as f:
+                results = json.load(f)
+        except Exception:
+            pass
+
+    hof = {}
+    hof_path = "genomes/archive/hall_of_fame.json"
+    if os.path.exists(hof_path):
+        try:
+            with open(hof_path, "r", encoding="utf-8") as f:
+                hof = json.load(f)
+        except Exception:
+            pass
+
+    return {
+        "status": "ready",
+        "benchmark": results,
+        "hall_of_fame_count": len(hof.get("specialists", {})) if hof else 0,
+        "coevolution_generations": hof.get("generations", 0) if hof else 0,
+        "last_coevolution": hof.get("timestamp", None) if hof else None
+    }
+
+
+@app.post("/api/adversary/stress_test")
+async def run_adversary_stress_test():
+    """Runs an on-demand adversarial stress benchmark across 5 tiers and returns real-time metrics."""
+    def _run_test():
+        from benchmark_adversarial_stress import run_adversarial_stress_benchmark
+        report = run_adversarial_stress_benchmark()
+        broadcast_event("adversary_benchmark", {
+            "status": "completed",
+            "benchmark": report
+        })
+        return report
+
+    loop = asyncio.get_running_loop()
+    report = await loop.run_in_executor(None, _run_test)
+    return {"status": "completed", "benchmark": report}
+
+
 @app.get("/api/genome")
 async def get_genome():
     """Returns detailed architecture: inputs, mutated hidden nodes, weights, and polarities."""

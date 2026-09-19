@@ -467,6 +467,113 @@
         </div>
       </div>
 
+      <!-- ADVERSARIAL RED TEAM SPARRING ARENA (MINIMAX EVASION BENCHMARK) -->
+      <div class="hud-box p-5 border border-red-500/30">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+            <h2 class="text-xs font-bold font-display tracking-widest text-slate-200">ADVERSARIAL RED TEAM SPARRING ARENA</h2>
+          </div>
+          <span id="adversary-hof-badge" class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-red-950/60 text-red-400 border border-red-500/40">
+            CO-EVOLUTION HARDENED
+          </span>
+        </div>
+
+        <p class="text-[10px] text-textMuted font-mono mb-3">
+          Synthetic adversarial mutations pitting the Specialist Council against 5 progressive evasion tiers (Jitter, Entropy, TTL, Camouflage).
+        </p>
+
+        <!-- 5-Tier Resilience Progress Grid -->
+        <div class="space-y-2.5 font-mono text-xs mb-4">
+          <!-- Tier 0 -->
+          <div class="p-2 rounded bg-panelLight border border-panelBorder">
+            <div class="flex items-center justify-between text-[11px] mb-1">
+              <span class="text-slate-300 font-bold">Tier 0: Standard Unmutated Baseline</span>
+              <span id="adv-t0-rate" class="font-bold text-matrixGreen">100.0% Det</span>
+            </div>
+            <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden border border-slate-700/50">
+              <div id="adv-t0-bar" class="h-full bg-matrixGreen rounded-full transition-all duration-300" style="width: 100%"></div>
+            </div>
+            <div class="flex justify-between text-[9px] text-textMuted mt-0.5">
+              <span>Strategy: None (Raw Floods &amp; Exploits)</span>
+              <span>Council Baseline: 100.0%</span>
+            </div>
+          </div>
+
+          <!-- Tier 1 -->
+          <div class="p-2 rounded bg-panelLight border border-panelBorder">
+            <div class="flex items-center justify-between text-[11px] mb-1">
+              <span class="text-laserCyan font-bold">Tier 1: Timing Jitter &amp; Rate Shaping</span>
+              <span id="adv-t1-rate" class="font-bold text-matrixGreen">100.0% Det</span>
+            </div>
+            <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden border border-slate-700/50">
+              <div id="adv-t1-bar" class="h-full bg-matrixGreen rounded-full transition-all duration-300" style="width: 100%"></div>
+            </div>
+            <div class="flex justify-between text-[9px] text-textMuted mt-0.5">
+              <span>Strategy: Poisson Micro-bursts (&Delta;t &gt; 0.25s)</span>
+              <span class="text-matrixGreen font-bold">Council +43.9% vs Monolith</span>
+            </div>
+          </div>
+
+          <!-- Tier 2 -->
+          <div class="p-2 rounded bg-panelLight border border-panelBorder">
+            <div class="flex items-center justify-between text-[11px] mb-1">
+              <span class="text-warningAmber font-bold">Tier 2: TTL Masquerading &amp; OS Camo</span>
+              <span id="adv-t2-rate" class="font-bold text-laserCyan">91.7% Det</span>
+            </div>
+            <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden border border-slate-700/50">
+              <div id="adv-t2-bar" class="h-full bg-laserCyan rounded-full transition-all duration-300" style="width: 91.7%"></div>
+            </div>
+            <div class="flex justify-between text-[9px] text-textMuted mt-0.5">
+              <span>Strategy: Linux/Windows Standard TTL Injection</span>
+              <span>Recon Specialist Veto</span>
+            </div>
+          </div>
+
+          <!-- Tier 3 -->
+          <div class="p-2 rounded bg-panelLight border border-panelBorder">
+            <div class="flex items-center justify-between text-[11px] mb-1">
+              <span class="text-purple-400 font-bold">Tier 3: Entropy Flattening (JSON/HTML)</span>
+              <span id="adv-t3-rate" class="font-bold text-warningAmber">83.3% Det</span>
+            </div>
+            <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden border border-slate-700/50">
+              <div id="adv-t3-bar" class="h-full bg-warningAmber rounded-full transition-all duration-300" style="width: 83.3%"></div>
+            </div>
+            <div class="flex justify-between text-[9px] text-textMuted mt-0.5">
+              <span>Strategy: Camouflage Padding (Entropy &lt; 0.65)</span>
+              <span>Deep-Payload Analyst Veto</span>
+            </div>
+          </div>
+
+          <!-- Tier 4 -->
+          <div class="p-2 rounded bg-panelLight border border-panelBorder">
+            <div class="flex items-center justify-between text-[11px] mb-1">
+              <span class="text-neonRed font-bold">Tier 4: Blended Full-Spectrum Evasion</span>
+              <span id="adv-t4-rate" class="font-bold text-purple-400">91.5% Co-Evolved</span>
+            </div>
+            <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden border border-slate-700/50">
+              <div id="adv-t4-bar" class="h-full bg-purple-500 rounded-full transition-all duration-300" style="width: 91.5%"></div>
+            </div>
+            <div class="flex justify-between text-[9px] text-textMuted mt-0.5">
+              <span>Strategy: Jitter + TTL + Entropy + Decoy Flags</span>
+              <span class="text-purple-300 font-bold">Hall of Fame Hardened</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Bar & Hall of Fame Telemetry -->
+        <div class="pt-2 border-t border-panelBorder/70 flex flex-col gap-2">
+          <button id="adv-stress-btn" onclick="runAdversaryStressTest()" class="w-full py-2 rounded text-xs font-bold font-mono bg-red-950/80 hover:bg-red-900 border border-red-500 text-red-200 transition cursor-pointer flex items-center justify-center gap-2 shadow-lg">
+            <span>⚔️</span>
+            <span id="adv-btn-text">RUN FULL-SPECTRUM ADVERSARIAL STRESS TEST</span>
+          </button>
+          <div class="flex items-center justify-between text-[9px] font-mono text-textMuted mt-1">
+            <span>HALL OF FAME: <span id="adv-hof-count" class="text-white font-bold">4 Champions Stored</span></span>
+            <span class="text-matrixGreen">ZERO CATASTROPHIC FORGETTING</span>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- RIGHT COLUMN: LIVING NEAT GENOME BRAIN & REAL-TIME PACKET STREAM (7 COLS) -->
@@ -1893,6 +2000,7 @@
         if (data.live_sniffing !== undefined) updateCaptureUI(data.live_sniffing);
         if (data.active_defense !== undefined) updateDefenseUI(data.active_defense);
         if (data.council) updateCouncilMeters(data.council);
+        updateAdversaryStats();
       } catch (e) {}
 
       // Fetch initial telemetry history & continuous status
@@ -1977,6 +2085,11 @@
             document.getElementById('evolve-btn-label').innerText = "EVOLVE 5 GENERATIONS";
             updateTrainingStats();
             playTacticalChirp(880, 'sine', 0.3);
+          } else if (msg.type === "adversary_benchmark") {
+            if (msg.data.benchmark && msg.data.benchmark.tiers) {
+              renderAdversaryTiers(msg.data.benchmark.tiers);
+              playTacticalChirp(880, 'sine', 0.4);
+            }
           }
         } catch (err) {
           console.error("SSE parse error:", err);
@@ -2027,6 +2140,64 @@
 
       bestLine.setAttribute('d', bestPath);
       avgLine.setAttribute('d', avgPath);
+    }
+
+    // ------------------------------------------------------------------
+    // ADVERSARIAL RED TEAM SPARRING & STRESS TEST FUNCTIONS
+    // ------------------------------------------------------------------
+    async function updateAdversaryStats() {
+      try {
+        const res = await fetch("/api/adversary/stats");
+        const data = await res.json();
+        if (data.hall_of_fame_count !== undefined) {
+          const hofEl = document.getElementById('adv-hof-count');
+          if (hofEl) hofEl.innerText = `${data.hall_of_fame_count} Champions Stored`;
+        }
+        if (data.benchmark && data.benchmark.tiers) {
+          renderAdversaryTiers(data.benchmark.tiers);
+        }
+      } catch (e) {}
+    }
+
+    function renderAdversaryTiers(tiers) {
+      if (!tiers || tiers.length < 5) return;
+      const ids = ['adv-t0', 'adv-t1', 'adv-t2', 'adv-t3', 'adv-t4'];
+      tiers.forEach((t, idx) => {
+        if (idx < ids.length) {
+          const prefix = ids[idx];
+          const rateEl = document.getElementById(`${prefix}-rate`);
+          const barEl = document.getElementById(`${prefix}-bar`);
+          if (rateEl) {
+            rateEl.innerText = `${t.moe_detection.toFixed(1)}% Det`;
+            rateEl.className = t.moe_detection >= 90 ? 'font-bold text-matrixGreen' : (t.moe_detection >= 75 ? 'font-bold text-warningAmber' : 'font-bold text-neonRed');
+          }
+          if (barEl) {
+            barEl.style.width = `${Math.min(100, Math.round(t.moe_detection))}%`;
+          }
+        }
+      });
+    }
+
+    async function runAdversaryStressTest() {
+      const btn = document.getElementById('adv-stress-btn');
+      const text = document.getElementById('adv-btn-text');
+      if (btn) btn.disabled = true;
+      if (text) text.innerText = "RUNNING 5-TIER ADVERSARIAL BENCHMARK...";
+      playTacticalChirp(660, 'square', 0.2);
+
+      try {
+        const res = await fetch("/api/adversary/stress_test", { method: "POST" });
+        const data = await res.json();
+        if (data.benchmark && data.benchmark.tiers) {
+          renderAdversaryTiers(data.benchmark.tiers);
+          playTacticalChirp(880, 'sine', 0.4);
+        }
+      } catch (err) {
+        console.error("Adversary stress test failed:", err);
+      } finally {
+        if (btn) btn.disabled = false;
+        if (text) text.innerText = "RUN FULL-SPECTRUM ADVERSARIAL STRESS TEST";
+      }
     }
 
     window.onload = initHUD;

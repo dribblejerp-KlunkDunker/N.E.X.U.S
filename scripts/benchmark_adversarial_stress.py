@@ -156,15 +156,18 @@ def run_adversarial_stress_benchmark():
     # Save to disk
     os.makedirs("logs", exist_ok=True)
     out_file = "logs/adversarial_stress_results.json"
+    result_data = {
+        "timestamp": datetime.now().isoformat(),
+        "tiers": benchmark_summary,
+        "monolith_drop": round(m_drop, 2),
+        "moe_drop": round(moe_drop, 2)
+    }
     with open(out_file, "w") as f:
-        json.dump({
-            "timestamp": datetime.now().isoformat(),
-            "tiers": benchmark_summary,
-            "monolith_drop": round(m_drop, 2),
-            "moe_drop": round(moe_drop, 2)
-        }, f, indent=2)
+        json.dump(result_data, f, indent=2)
     print(f"\nDetailed stress results saved to: {out_file}\n")
+    return result_data
 
 
 if __name__ == "__main__":
     run_adversarial_stress_benchmark()
+
