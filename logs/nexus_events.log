@@ -30,3 +30,85 @@
 [2026-09-17 02:15:51] [ANOMALY DETECTED] Threat Score: 0.9571 | Attacker IP: 198.51.100.77 | Pkt: Ether / IP / TCP 198.51.100.77:55555 > 192.168.1.50:http S
 [2026-09-17 02:15:51] [DRY-RUN] Would block IP via firewall: 198.51.100.77 (TTL: 1800s)
 [2026-09-17 02:15:51] [ANOMALY DETECTED] Threat Score: 0.9932 | Attacker IP: 198.51.100.77 | Pkt: Ether / IP / TCP 198.51.100.77:55555 > 192.168.1.50:http S
+[2026-09-19 21:18:55] [NEXUS] Loaded champion genome from genomes/champion.pkl (Fitness: 0.6924217097191857)
+[2026-09-19 21:18:55] [NEXUS] Specialist Council (MoE) online. Active Mode: MOE_COUNCIL
+[2026-09-19 21:18:55] [NEXUS] ONNX Predictive Brain loaded (models/predictive_brain.onnx). Horizon pre-emption active.
+[2026-09-19 21:18:55] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.77 | Pkt: Ether / IP / TCP 198.51.100.77:55555 > 192.168.1.50:http S
+[2026-09-19 21:18:55] [DRY-RUN] Would block IP via firewall: 198.51.100.77 (TTL: 1800s)
+[2026-09-19 21:18:55] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.77 | Pkt: Ether / IP / TCP 198.51.100.77:55555 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [NEXUS] Loaded champion genome from genomes/champion.pkl (Fitness: 0.6924217097191857)
+[2026-09-19 21:19:59] [NEXUS] Specialist Council (MoE) online. Active Mode: MOE_COUNCIL
+[2026-09-19 21:19:59] [NEXUS] ONNX Predictive Brain loaded (models/predictive_brain.onnx). Horizon pre-emption active.
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.10 | Pkt: Ether / IP / TCP 198.51.100.10:40000 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.10 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.11 | Pkt: Ether / IP / TCP 198.51.100.11:40001 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.11 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.12 | Pkt: Ether / IP / TCP 198.51.100.12:40002 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.12 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.13 | Pkt: Ether / IP / TCP 198.51.100.13:40003 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.13 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.14 | Pkt: Ether / IP / TCP 198.51.100.14:40004 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.14 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.15 | Pkt: Ether / IP / TCP 198.51.100.15:40005 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.15 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.16 | Pkt: Ether / IP / TCP 198.51.100.16:40006 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.16 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.17 | Pkt: Ether / IP / TCP 198.51.100.17:40007 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.17 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.18 | Pkt: Ether / IP / TCP 198.51.100.18:40008 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.18 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.19 | Pkt: Ether / IP / TCP 198.51.100.19:40009 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.19 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.20 | Pkt: Ether / IP / TCP 198.51.100.20:40010 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.20 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.21 | Pkt: Ether / IP / TCP 198.51.100.21:40011 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.21 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.22 | Pkt: Ether / IP / TCP 198.51.100.22:40012 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.22 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.23 | Pkt: Ether / IP / TCP 198.51.100.23:40013 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.23 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.24 | Pkt: Ether / IP / TCP 198.51.100.24:40014 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.24 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.25 | Pkt: Ether / IP / TCP 198.51.100.25:40015 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.25 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.26 | Pkt: Ether / IP / TCP 198.51.100.26:40016 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.26 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.27 | Pkt: Ether / IP / TCP 198.51.100.27:40017 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.27 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.28 | Pkt: Ether / IP / TCP 198.51.100.28:40018 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.28 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.29 | Pkt: Ether / IP / TCP 198.51.100.29:40019 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.29 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.30 | Pkt: Ether / IP / TCP 198.51.100.30:40020 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.30 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.31 | Pkt: Ether / IP / TCP 198.51.100.31:40021 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.31 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.32 | Pkt: Ether / IP / TCP 198.51.100.32:40022 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.32 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.33 | Pkt: Ether / IP / TCP 198.51.100.33:40023 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.33 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.34 | Pkt: Ether / IP / TCP 198.51.100.34:40024 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.34 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.35 | Pkt: Ether / IP / TCP 198.51.100.35:40025 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.35 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.36 | Pkt: Ether / IP / TCP 198.51.100.36:40026 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.36 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.37 | Pkt: Ether / IP / TCP 198.51.100.37:40027 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.37 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.38 | Pkt: Ether / IP / TCP 198.51.100.38:40028 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.38 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.39 | Pkt: Ether / IP / TCP 198.51.100.39:40029 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.39 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.40 | Pkt: Ether / IP / TCP 198.51.100.40:40030 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.40 (TTL: 1800s)
+[2026-09-19 21:19:59] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.41 | Pkt: Ether / IP / TCP 198.51.100.41:40031 > 192.168.1.50:http S
+[2026-09-19 21:19:59] [DRY-RUN] Would block IP via firewall: 198.51.100.41 (TTL: 1800s)
+[2026-09-20 01:05:32] [NEXUS] Loaded champion genome from genomes/champion.pkl (Fitness: 0.6924217097191857)
+[2026-09-20 01:05:32] [NEXUS] Specialist Council (MoE) online. Active Mode: MOE_COUNCIL
+[2026-09-20 01:05:32] [NEXUS] ONNX Predictive Brain loaded (models/predictive_brain.onnx). Horizon pre-emption active.
+[2026-09-20 01:05:32] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.77 | Pkt: Ether / IP / TCP 198.51.100.77:55555 > 192.168.1.50:http S
+[2026-09-20 01:05:32] [DRY-RUN] Would block IP via firewall: 198.51.100.77 (TTL: 1800s)
+[2026-09-20 01:05:32] [ANOMALY DETECTED] Threat Score: 0.9950 [VOLUMETRIC_VANGUARD] | Posture: STANDARD (0.85) (P_recon=0.0000) | Attacker IP: 198.51.100.77 | Pkt: Ether / IP / TCP 198.51.100.77:55555 > 192.168.1.50:http S
+[2026-09-20 01:06:41] [NEXUS] Loaded champion genome from genomes/champion.pkl (Fitness: 0.6924217097191857)
+[2026-09-20 01:06:41] [NEXUS] Specialist Council (MoE) online. Active Mode: MOE_COUNCIL
+[2026-09-20 01:06:41] [NEXUS] ONNX Predictive Brain loaded (models/predictive_brain.onnx). Horizon pre-emption active.

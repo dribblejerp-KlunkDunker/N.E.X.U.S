@@ -127,6 +127,8 @@ SHARED_STATE["last_council_breakdown"] = {
 
 EXTRACTOR = PacketFeatureExtractor()
 TRACKER = PassiveTcpFlowTracker(timeout_seconds=120.0, history_size=8)
+from whitelist_manager import WhitelistManager
+WHITELIST_MGR = WhitelistManager("config/whitelist.json")
 
 # --------------------------------------------------------------------
 # THREAT INTEL & OS FINGERPRINTING ENGINE
@@ -676,6 +678,11 @@ def process_packet(pkt):
     PACKET_COUNTER_SEC += 1
     BYTES_COUNTER_SEC += len(pkt)
 
+    # 0. Trusted Whitelist Check (Subnets, IPs, Ports)
+    is_wl, wl_reason = WHITELIST_MGR.is_whitelisted(src_ip, dst_ip=dst_ip, sport=sport, dport=dport)
+    if is_wl:
+        return None
+
     # 1. Feature extraction
     feats_20 = EXTRACTOR.extract(pkt, extended=True)
     feats_12 = feats_20[:12]
@@ -1015,6 +1022,57 @@ async def trigger_surgeon_operation():
     loop = asyncio.get_running_loop()
     result = await loop.run_in_executor(None, _operate)
     return {"status": "operated", "data": result}
+
+
+# --------------------------------------------------------------------
+# TRUSTED WHITELIST API
+# --------------------------------------------------------------------
+class WhitelistAddRequest(BaseModel):
+    item_type: str  # "ip", "subnet", "mac", "port"
+    value: str
+
+
+@app.get("/api/whitelist")
+async def get_whitelist():
+    """Returns current whitelist configuration and status summary."""
+    return WHITELIST_MGR.export_summary()
+
+
+@app.post("/api/whitelist/add")
+async def add_whitelist_entry(req: WhitelistAddRequest):
+    """Dynamically adds an entry to config/whitelist.json and hot-reloads."""
+    config_path = "config/whitelist.json"
+    if not os.path.exists(config_path):
+        return JSONResponse(status_code=404, content={"error": "whitelist.json not found"})
+
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        v = req.value.strip()
+        if req.item_type == "subnet":
+            if v not in data.get("subnets", []):
+                data.setdefault("subnets", []).append(v)
+        elif req.item_type == "ip":
+            if v not in data.get("trusted_ips", []):
+                data.setdefault("trusted_ips", []).append(v)
+        elif req.item_type == "port":
+            p = int(v)
+            if p not in data.get("trusted_ports", []):
+                data.setdefault("trusted_ports", []).append(p)
+        elif req.item_type == "mac":
+            if v not in data.get("trusted_macs", []):
+                data.setdefault("trusted_macs", []).append(v)
+        else:
+            return JSONResponse(status_code=400, content={"error": f"Invalid item_type: {req.item_type}"})
+
+        with open(config_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+
+        WHITELIST_MGR.load_whitelist(force=True)
+        return {"status": "success", "added": v, "type": req.item_type, "summary": WHITELIST_MGR.export_summary()}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
 
 
 @app.get("/api/genome")

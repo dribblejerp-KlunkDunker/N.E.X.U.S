@@ -386,6 +386,92 @@ def run_diagnostics():
     print_check("Surgeon Benchmark Telemetry", os.path.exists(surgeon_bench_res), surgeon_bench_res)
 
     # -------------------------------------------------------------
+    # 10. TRUSTED WHITELIST & ZERO-DOWNTIME BYPASS ENGINE
+    # -------------------------------------------------------------
+    print_header("10. Trusted Whitelist & Bypass Engine")
+    whitelist_path = "config/whitelist.json"
+    has_wl_cfg = os.path.exists(whitelist_path)
+    print_check("Whitelist Config File", has_wl_cfg, whitelist_path)
+    if not has_wl_cfg:
+        all_passed = False
+    else:
+        try:
+            from whitelist_manager import WhitelistManager
+            wm = WhitelistManager(whitelist_path=whitelist_path)
+
+            lan_pass, _ = wm.is_whitelisted(ip="192.168.1.50")
+            loopback_pass, _ = wm.is_whitelisted(ip="127.0.0.1")
+            port_pass, _ = wm.is_whitelisted(ip="198.51.100.1", port=53)
+            dash_port_pass, _ = wm.is_whitelisted(ip="198.51.100.1", port=8000)
+            attacker_bypassed, _ = wm.is_whitelisted(ip="198.51.100.99", port=4444)
+            attacker_blocked = not attacker_bypassed
+
+            wl_eval_ok = lan_pass and loopback_pass and port_pass and dash_port_pass and attacker_blocked
+            print_check(
+                "Zero-Copy CIDR & Port Filtering",
+                wl_eval_ok,
+                f"LAN={lan_pass}, Loopback={loopback_pass}, DNS/Dashboard={port_pass}, Attacker Blocked={attacker_blocked}"
+            )
+            if not wl_eval_ok:
+                all_passed = False
+
+            reloaded = wm.check_and_reload()
+            print_check("Hot-Reload Heartbeat Check", reloaded is False, "Active cache maintained")
+        except Exception as e:
+            print_check("Whitelist Manager Engine", False, str(e))
+            all_passed = False
+
+    # -------------------------------------------------------------
+    # 11. AUTONOMOUS SAFETY VALIDATION GATE & ROLLBACK PLANE
+    # -------------------------------------------------------------
+    print_header("11. Autonomous Safety Validation Gate & Rollback Engine")
+    try:
+        from continuous_loop import validate_candidate_safety, rollback_to_latest_archive
+        import copy
+        import pickle
+
+        if os.path.exists(champion_path):
+            with open(champion_path, "rb") as f:
+                c_data = pickle.load(f)
+            c_cfg = c_data.get("config")
+            if not c_cfg:
+                import neat
+                c_cfg = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_path)
+
+            # Test 1: Self-evaluation must pass
+            safe_self, self_res = validate_candidate_safety(
+                c_data["genome"], c_cfg, incumbent_file=champion_path, max_allowed_fp_increase=0.005
+            )
+            print_check("Safety Gate Incumbent Parity", safe_self, f"FP={self_res.get('candidate_fp', 0)*100:.2f}%")
+            if not safe_self:
+                all_passed = False
+
+            # Test 2: Deliberately regressed candidate must be rejected
+            regressed_genome = copy.deepcopy(c_data["genome"])
+            regressed_genome.nodes[0].bias = 10.0
+            safe_regressed, reg_res = validate_candidate_safety(
+                regressed_genome, c_cfg, incumbent_file=champion_path, max_allowed_fp_increase=0.005
+            )
+            reg_rejected = (safe_regressed is False)
+            print_check(
+                "Safety Gate Regressed Rejection",
+                reg_rejected,
+                f"Rejected: {reg_res.get('reason', '')[:55]}..."
+            )
+            if not reg_rejected:
+                all_passed = False
+
+        archive_files = [f for f in os.listdir("genomes/archive") if f.endswith(".pkl")]
+        has_archives = len(archive_files) > 0
+        print_check("Archived Champion Snapshots", has_archives, f"{len(archive_files)} backups available")
+        if not has_archives:
+            all_passed = False
+
+    except Exception as e:
+        print_check("Safety Validation & Rollback Engine", False, str(e))
+        all_passed = False
+
+    # -------------------------------------------------------------
     # FINAL VERDICT
     # -------------------------------------------------------------
     print(f"\n{BOLD}{CYAN}================================================================{RESET}")

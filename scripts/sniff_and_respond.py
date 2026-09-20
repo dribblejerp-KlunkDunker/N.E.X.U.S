@@ -18,16 +18,20 @@ import logging
 import threading
 import json
 import urllib.request
+from collections import deque
 from datetime import datetime
 from typing import Dict, Set, Optional
 import numpy as np
 import neat
-from scapy.all import sniff, send, IP, TCP, UDP, Raw, conf
+import onnxruntime as ort
+from scapy.all import sniff, send, IP, TCP, UDP, Raw, Ether, conf
 
 # Add scripts directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from feature_extractor import PacketFeatureExtractor
 from passive_flow_tracker import PassiveTcpFlowTracker
+from council_arbiter import CouncilArbiter
+from whitelist_manager import WhitelistManager
 
 # ====================================================================
 # DEMONIC SKULL COUNTERMEASURE PAYLOAD (FOR LAB / SIMULATION USE)
@@ -60,17 +64,28 @@ class NexusGuardian:
         self,
         champion_path: str = "genomes/champion.pkl",
         threshold: float = 0.85,
+        heightened_threshold: float = 0.70,
+        escalation_threshold: float = 0.75,
+        use_council: bool = True,
+        use_predictive: bool = True,
+        predictive_model_path: str = "models/predictive_brain.onnx",
         active_defense: bool = False,
         inject_simulated_rst: bool = False,
         bidirectional_rst: bool = False,
         ban_duration_sec: int = 1800,  # 30-minute temporary ban
         cooldown_sec: float = 30.0,     # 30-second rate limit per IP
         webhook_url: Optional[str] = None,
+        whitelist_path: str = "config/whitelist.json",
         log_file: str = "logs/nexus_events.log",
         evidence_dir: str = "logs/evidence"
     ):
         self.champion_path = champion_path
         self.threshold = threshold
+        self.heightened_threshold = heightened_threshold
+        self.escalation_threshold = escalation_threshold
+        self.use_council = use_council
+        self.use_predictive = use_predictive
+        self.predictive_model_path = predictive_model_path
         self.active_defense = active_defense
         self.inject_simulated_rst = inject_simulated_rst
         self.bidirectional_rst = bidirectional_rst
@@ -78,6 +93,8 @@ class NexusGuardian:
         self.cooldown_sec = cooldown_sec
         self.webhook_url = webhook_url or os.getenv("NEXUS_WEBHOOK_URL")
         self.evidence_dir = evidence_dir
+        self.whitelist_path = whitelist_path
+        self.whitelist_manager = WhitelistManager(whitelist_path)
 
         # State tracking: IP -> unban timestamp
         self.banned_ips: Dict[str, float] = {}
@@ -88,6 +105,7 @@ class NexusGuardian:
         self.extractor = PacketFeatureExtractor()
         self.flow_tracker = PassiveTcpFlowTracker(timeout_seconds=120.0, history_size=8)
         self.last_reload_time = 0.0
+        self._heightened_logged = False
 
         # Setup logging
         os.makedirs(os.path.dirname(log_file), exist_ok=True)
@@ -103,8 +121,28 @@ class NexusGuardian:
             ch.setFormatter(formatter)
             self.logger.addHandler(ch)
 
-        # Load champion genome
+        # Load fallback champion genome
         self.load_champion(self.champion_path)
+
+        # Initialize Specialist Council (MoE) Arbiter
+        self.council_arbiter: Optional[CouncilArbiter] = None
+        if self.use_council:
+            try:
+                self.council_arbiter = CouncilArbiter()
+                self.logger.info(f"[NEXUS] Specialist Council (MoE) online. Active Mode: {self.council_arbiter.active_mode}")
+            except Exception as e:
+                self.logger.warning(f"[NEXUS] Specialist Council unavailable ({e}). Fallback to monolithic champion.")
+
+        # Initialize ONNX Predictive Brain for temporal horizon forecasting
+        self.predictive_session = None
+        self.predictive_buffer = deque(maxlen=30)
+        self.last_recon_prob = 0.0
+        if self.use_predictive and os.path.exists(self.predictive_model_path):
+            try:
+                self.predictive_session = ort.InferenceSession(self.predictive_model_path)
+                self.logger.info(f"[NEXUS] ONNX Predictive Brain loaded ({self.predictive_model_path}). Horizon pre-emption active.")
+            except Exception as e:
+                self.logger.warning(f"[NEXUS] ONNX Predictive Brain failed to load ({e}). Pre-emption disabled.")
 
     def load_champion(self, champion_path: str):
         if not os.path.exists(champion_path):
@@ -123,7 +161,13 @@ class NexusGuardian:
             try:
                 sig_mtime = os.path.getmtime(RELOAD_SIGNAL_FILE)
                 if sig_mtime > self.last_reload_time:
-                    self.logger.info("[HOT-RELOAD] Reload signal detected. Swapping champion neural weights...")
+                    self.logger.info("[HOT-RELOAD] Reload signal detected. Swapping neural weights...")
+                    if self.use_council:
+                        try:
+                            self.council_arbiter = CouncilArbiter()
+                            self.logger.info(f"[HOT-RELOAD] Reloaded Specialist Council (MoE). Mode: {self.council_arbiter.active_mode}")
+                        except Exception as ce:
+                            self.logger.warning(f"[HOT-RELOAD] Council reload error: {ce}")
                     self.load_champion(self.champion_path)
             except Exception as e:
                 self.logger.error(f"[HOT-RELOAD ERROR] Could not hot-reload champion: {e}")
@@ -275,7 +319,15 @@ class NexusGuardian:
             return
 
         attacker_ip = pkt[IP].src
-        if attacker_ip in WHITELIST_IPS:
+        dst_ip = pkt[IP].dst
+        src_mac = pkt[Ether].src if pkt.haslayer(Ether) else None
+        sport = int(pkt[TCP].sport) if pkt.haslayer(TCP) else (int(pkt[UDP].sport) if pkt.haslayer(UDP) else None)
+        dport = int(pkt[TCP].dport) if pkt.haslayer(TCP) else (int(pkt[UDP].dport) if pkt.haslayer(UDP) else None)
+
+        is_wl, wl_reason = self.whitelist_manager.is_whitelisted(
+            src_ip=attacker_ip, dst_ip=dst_ip, src_mac=src_mac, sport=sport, dport=dport
+        )
+        if is_wl:
             return
 
         # 2. State Plane Observation (RFC 5961 / Passive Tracking)
@@ -307,31 +359,76 @@ class NexusGuardian:
                 if ev_file:
                     self.logger.info(f"[FORENSIC EVIDENCE] Preserved flow timeline artifact: {ev_file}")
 
-        # 3. Detection Plane: NEAT Anomaly Scoring
+        # 3. Detection Plane: Specialist Council (MoE) & Monolithic Fallback
         feats_20 = self.extractor.extract(pkt, extended=True)
-        num_in = len(self.config.genome_config.input_keys) if hasattr(self, 'config') and self.config else 20
-        feats = feats_20 if num_in == 20 else feats_20[:12]
-        anomaly_score = float(self.net.activate(feats)[0])
+        leading_expert = "MONOLITH"
+        if self.use_council and self.council_arbiter:
+            c_res = self.council_arbiter.evaluate(feats_20)
+            anomaly_score = float(c_res["score"])
+            leading_expert = c_res.get("leading_expert", "NONE")
+        else:
+            num_in = len(self.config.genome_config.input_keys) if hasattr(self, 'config') and self.config else 20
+            feats = feats_20 if num_in == 20 else feats_20[:12]
+            anomaly_score = float(self.net.activate(feats)[0])
 
-        if anomaly_score >= self.threshold:
+        # 4. Predictive Plane: ONNX Temporal Sequence Horizon Forecasting
+        p_recon = self.last_recon_prob
+        if self.use_predictive and self.predictive_session:
+            vec_13 = list(feats_20[:12]) + [anomaly_score]
+            self.predictive_buffer.append(vec_13)
+            # Pad window to 30 steps if warming up
+            seq_list = list(self.predictive_buffer)
+            if len(seq_list) < 30:
+                pad = [seq_list[0]] * (30 - len(seq_list))
+                seq_list = pad + seq_list
+            tensor_in = np.array(seq_list, dtype=np.float32).reshape(1, 30, 13)
+            try:
+                preds = self.predictive_session.run(["recon_probability"], {"packet_sequence": tensor_in})
+                p_recon = float(preds[0][0][0])
+                self.last_recon_prob = p_recon
+            except Exception:
+                pass
+
+        # Dynamic Posture Adjustment: Tighten threshold when attack horizon escalates
+        is_heightened = (p_recon >= self.escalation_threshold)
+        effective_threshold = self.heightened_threshold if is_heightened else self.threshold
+        posture = f"HEIGHTENED_PREEMPTION ({self.heightened_threshold})" if is_heightened else f"STANDARD ({self.threshold})"
+
+        if is_heightened and not getattr(self, "_heightened_logged", False):
+            self.logger.warning(
+                f"[PREDICTIVE ESCALATION] Recon Probability: {p_recon:.4f} >= {self.escalation_threshold:.2f}! "
+                f"Defensive Posture dynamically tightened to {self.heightened_threshold:.2f}."
+            )
+            self._heightened_logged = True
+        elif not is_heightened:
+            self._heightened_logged = False
+
+        if anomaly_score >= effective_threshold:
             summary = pkt.summary()
             self.logger.warning(
-                f"[ANOMALY DETECTED] Threat Score: {anomaly_score:.4f} | Attacker IP: {attacker_ip} | Pkt: {summary}"
+                f"[ANOMALY DETECTED] Threat Score: {anomaly_score:.4f} [{leading_expert}] | Posture: {posture} (P_recon={p_recon:.4f}) | Attacker IP: {attacker_ip} | Pkt: {summary}"
             )
 
-            # 4. Response Plane: Rate-limited Temporary Firewall Block
+            # 5. Response Plane: Rate-limited Temporary Firewall Block
             self.block_ip(attacker_ip)
             self.send_webhook_alert(attacker_ip, anomaly_score, summary)
 
-            # 5. Optional Lab Mode: Simulated Demonic RST
+            # 6. Optional Lab Mode: Simulated Demonic RST
             if self.inject_simulated_rst:
                 self.send_demonic_rst(pkt)
 
     def start_sniffing(self, iface=None, count=0):
+        council_status = f"ONLINE ({self.council_arbiter.active_mode})" if (self.use_council and self.council_arbiter) else "OFFLINE (Monolith)"
+        predictive_status = "ONLINE (Dynamic Pre-emption)" if (self.use_predictive and self.predictive_session) else "OFFLINE"
         self.logger.info(
-            f"[NEXUS] Guardian armed. Sniffing traffic (Threshold: {self.threshold}, "
-            f"Active Defense: {self.active_defense}, Ban TTL: {self.ban_duration_sec}s, "
-            f"Cooldown: {self.cooldown_sec}s, Lab RST: {self.inject_simulated_rst})..."
+            f"[NEXUS] Guardian armed. Sniffing traffic:\n"
+            f"  - Base Threshold:       {self.threshold} (Heightened: {self.heightened_threshold} at P >= {self.escalation_threshold})\n"
+            f"  - Specialist Council:   {council_status}\n"
+            f"  - ONNX Predictive Brain:{predictive_status}\n"
+            f"  - Active Firewall:      {self.active_defense}\n"
+            f"  - Lab Demonic RST:      {self.inject_simulated_rst} (Bidirectional: {self.bidirectional_rst})\n"
+            f"  - Temporary Ban TTL:    {self.ban_duration_sec}s\n"
+            f"  - Attacker Cooldown:    {self.cooldown_sec}s"
         )
         try:
             sniff(
@@ -348,12 +445,18 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="NEXUS Live Guardian & Defensive Flow Intelligence Engine")
     parser.add_argument("--champion", type=str, default="genomes/champion.pkl", help="Champion genome path")
     parser.add_argument("--threshold", type=float, default=0.85, help="Anomaly threshold [0.0 - 1.0]")
+    parser.add_argument("--heightened-threshold", type=float, default=0.70, help="Tightened threshold during predicted escalation")
+    parser.add_argument("--escalation-threshold", type=float, default=0.75, help="Recon probability trigger for heightened defense")
+    parser.add_argument("--no-council", action="store_true", help="Disable Specialist Council (MoE), force monolithic champion")
+    parser.add_argument("--no-predictive", action="store_true", help="Disable ONNX predictive horizon forecaster")
+    parser.add_argument("--predictive-model", type=str, default="models/predictive_brain.onnx", help="Path to ONNX predictive model")
     parser.add_argument("--active-defense", action="store_true", help="Enable live firewall blocking via netsh/iptables")
     parser.add_argument("--inject-simulated-rst", action="store_true", help="Opt-in lab mode: dispatch forged TCP RST with demonic skull")
     parser.add_argument("--bidirectional-rst", action="store_true", help="In lab mode: send RST to both endpoints simultaneously")
     parser.add_argument("--ban-duration", type=int, default=1800, help="Temporary IP ban duration in seconds (default: 1800s / 30 min)")
     parser.add_argument("--cooldown", type=float, default=30.0, help="Per-IP rate-limiting cooldown in seconds")
     parser.add_argument("--webhook-url", type=str, default=None, help="Discord / Slack / Generic webhook URL for alerts")
+    parser.add_argument("--whitelist", type=str, default="config/whitelist.json", help="Path to trusted whitelist JSON config")
     parser.add_argument("--iface", type=str, default=None, help="Network interface to sniff on")
     parser.add_argument("--test-packet", action="store_true", help="Send a simulated attack packet to test pipeline")
     args = parser.parse_args()
@@ -361,12 +464,18 @@ if __name__ == "__main__":
     guardian = NexusGuardian(
         champion_path=args.champion,
         threshold=args.threshold,
+        heightened_threshold=args.heightened_threshold,
+        escalation_threshold=args.escalation_threshold,
+        use_council=not args.no_council,
+        use_predictive=not args.no_predictive,
+        predictive_model_path=args.predictive_model,
         active_defense=args.active_defense,
         inject_simulated_rst=args.inject_simulated_rst,
         bidirectional_rst=args.bidirectional_rst,
         ban_duration_sec=args.ban_duration,
         cooldown_sec=args.cooldown,
-        webhook_url=args.webhook_url
+        webhook_url=args.webhook_url,
+        whitelist_path=args.whitelist
     )
 
     if args.test_packet:

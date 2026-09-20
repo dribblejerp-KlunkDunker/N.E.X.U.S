@@ -95,6 +95,8 @@ def capture_home_baseline(
             pps = len(captured_packets) / max(0.1, elapsed)
             kbps = (total_bytes * 8.0 / 1024.0) / max(0.1, elapsed)
             pct = min(100.0, (elapsed / duration) * 100.0)
+            bar_len = 24
+            filled = int(bar_len * (pct / 100.0))
             bar = "=" * filled + "-" * (bar_len - filled)
 
             sys.stdout.write(
